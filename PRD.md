@@ -1,0 +1,72 @@
+# Product Requirements Document (PRD): QR Code Geocaching Tracker
+
+# 1\. Introduction
+
+The objective of this application is to support a geocaching game where teams navigate between physical cache locations by scanning QR codes. The app manages clue delivery, team-specific sequences, and scoring based on speed and clue usage.
+
+# 2\. Gameplay and User Flow
+
+1. Game Start and Registration: Each team scans a unique QR code. This is a one-time initial event for the first person to scan the code, directing them to a registration page where they must specify a team name and list the team members. Upon successful registration and unique identification, the app initializes their journey and provides the clue for their first location.  
+2. Late Registration/Access: Once a team is registered, the Registration Code serves as the unique identifier for their active session. If any team member scans the team's Registration Code again—whether after closing a browser, or if a second team member scans it—the app must bypass the registration form and automatically redirect them to the webpage for their current active clue.  
+3. Location Sequence: The sequence for each team should be {start}, sequence of caches, {return to base}. There are approximately 8 locations in total. The sequence of boxes is unique for each team to prevent tailing.  
+4. Upon scanning a **Cache Location Code**, the user is directed to a webpage where the app records the cache as found (scoring is calculated based on clues used). The user must then confirm that they have replaced the cache box in its original location. Once confirmed, they are shown the first clue for the next location. If stuck, they can request a second clue, and subsequently a third clue which includes a photograph of the location, directly from the active clue page.   
+   Additionally, **once the team has requested the third clue**, they have an option to declare they cannot find the cache. If they choose this, they must confirm via an "Are you sure?" prompt, which results in 0 points for that cache and immediate delivery of the clue for the next location in their sequence.  
+5. Active Clue Page: This page must display the team name, current score, and the current clue text or image. It must also provide an option to request the next clue (if available) and the option to skip the cache if the third clue has already been requested.  
+6. Completion and Return to Base: After the last cache in the sequence is found, a team should see a congratulatory message telling them to return to base. The game must be completed within a specified time limit; points earned after this window will not be counted.  
+7. End of Game Handling: Any Cache Location Code scan that occurs after the global Game Time Limit has expired or after an Admin Recall has been initiated will result in a message informing the team that the game is over.
+
+# 3\. Scoring and Data Requirements
+
+Scoring is based solely on the number of clues a team uses to find each cache:
+
+* 5 points if the cache is found using 1 clue.  
+* 3 points if the cache is found using 2 clues.  
+* 1 point if the cache is found using 3 clues.  
+* 0 points if the team chooses to skip the cache (declare they cannot find it).
+
+The application must record the following data points for each team:
+
+* The exact timestamp when each box is found (scanned).  
+* Total points calculated based on clue usage.  
+* The exact timestamp when Clue 1, Clue 2, and Clue 3 were requested.  
+* Points by Cache.  
+* Skipped Status.
+
+# 4\. Administrative Setup Requirements
+
+Administrators require a web interface to manage the game setup:
+
+* Associate physical QR codes with specific cache locations within the app.  
+* Input text for Clue 1, Clue 2, and Clue 3 (including image uploads for the final clue).  
+* Administrative monitoring interface: A real-time dashboard displaying all registered teams, their members, progress through the sequence of clues with associated timestamps, and a global control to terminate the game and recall teams.  
+* Game Configuration: Ability to set and update the global Game Time Limit.  
+* Define and assign the unique, ordered sequence of Cache Location Codes to the corresponding Registration Codes.
+
+## 4.1 QR Code Management
+
+This section details the generation and content of the QR codes:
+
+1. **Generation:** The administrative web interface must include a server-side tool using a dedicated library to generate and export QR codes as high-resolution images (e.g., PNG or SVG) for printing.  
+2. **Content:** All QR codes will encode a unique URL following the format: *\[App Domain\]/scan?id=\[Secure Unique Identifier\]*. The *Secure Unique Identifier* must be a non-sequential, random token to prevent guessing and ensure security.  
+3. **Types:** Specify two types of codes: **Registration Codes** (unique codes used to initialize a team's journey and associate them with a specific sequence) and **Cache Location Codes** (unique codes for each physical cache box to identify the location being found).
+
+# 5\. Technical Constraints and Non-Functional Requirements (NFRs)
+
+* Hosting: To be hosted on Vercel using a standard Vercel domain.  
+* Development: AI coding agents will be used to generate the application.  
+* Simplicity: The architecture should be as simple as possible to minimize failure points during the live game.  
+* The application must be a mobile-centric web interface, requiring no installation on users' devices.  
+* All clue pages and data submissions must load and process within 2 seconds.  
+* The system must maintain 99.9% uptime during the specified game window.  
+* QR code URLs must be secured to prevent sequential guessing or direct access to future clues.  
+* The mobile interface must be responsive and highly legible in bright outdoor lighting conditions.
+
+# 6\. Data Model
+
+The following entities define the core data structure of the application:
+
+* **Teams:** ID, Name, Members, Registration Code ID, Game Start Timestamp  
+* **Caches:** ID, Clue 1 Text, Clue 2 Text, Clue 3 Text/Image, Cache Location Code ID, Location  
+* **Sequences:** Team ID, Ordered list of Cache IDs  
+* **Progress Log:** Team ID, Cache ID, Clue 1 Timestamp, Clue 2 Timestamp, Clue 3 Timestamp, Found Timestamp, Points by Cache, Skipped Status
+
