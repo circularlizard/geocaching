@@ -58,12 +58,33 @@ This section details the generation and content of the QR codes:
 
 # 5\. Technical Constraints and Non-Functional Requirements (NFRs)
 
-* Hosting: To be hosted on Vercel using a standard Vercel domain.  
-* Frontend: Next.js (App Router).  
-* Database: Neon (Vercel Postgres).  
-* Image Storage: Vercel Blob (for Clue 3 photograph uploads).  
+## 5.1 Production Stack
+
+* Hosting: Vercel (standard Vercel domain).  
+* Frontend: Next.js (App Router). No Edge Runtime — all routes use standard Node.js runtime.  
+* Database: Neon (Vercel Postgres). All DB access via `DATABASE_URL` environment variable.  
+* Image Storage: Vercel Blob (for Clue 3 photograph uploads). All storage access via an abstracted storage module driven by environment variables.  
 * Development: AI coding agents will be used to generate the application.  
 * Simplicity: The architecture should be as simple as possible to minimize failure points during the live game.  
+
+## 5.2 Local Development Environment
+
+The application must be fully runnable and testable locally without any Vercel-specific services:
+
+* Local Postgres instance provided via Docker Compose.  
+* Local S3-compatible blob storage provided via MinIO in Docker Compose.  
+* All environment-specific dependencies injected via `.env.local`.  
+* A `docker-compose.yml` must be provided at the project root to bring up the full local backing services with a single command.  
+* A database seed script must be provided to populate a known test state for local development and test runs.  
+
+## 5.3 Testing Stack
+
+* **Unit/Integration tests:** Vitest with Gherkin feature files (via `@cucumber/cucumber` or equivalent). Tests run against the local Postgres and MinIO instances.  
+* **E2E tests:** Playwright, running against the local Next.js dev server (`next dev`). The same Playwright suite must be runnable against a Vercel preview deployment URL.  
+* All tests must be runnable with a single command from the project root.  
+
+## 5.4 General NFRs
+
 * The application must be a mobile-centric web interface, requiring no installation on users' devices.  
 * All clue pages and data submissions must load and process within 2 seconds.  
 * QR code URLs must be secured to prevent sequential guessing or direct access to future clues.  
