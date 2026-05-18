@@ -7,6 +7,7 @@ export class TestWorld extends World {
   teamId: number | null = null;
   currentUrl: string | null = null;
   currentToken: string | null = null;
+  currentCacheToken: string | null = null;
 
   constructor(options: IWorldOptions) {
     super(options);
