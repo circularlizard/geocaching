@@ -219,7 +219,7 @@ Then(
 Then(
   'they see a registration form requesting a team name and team members',
   async function (this: TestWorld) {
-    const body = await this.response!.text();
+    const body = await this.getBody();
     const lower = body.toLowerCase();
     if (!lower.includes('team name') || !lower.includes('team member')) {
       throw new Error(
@@ -232,7 +232,7 @@ Then(
 Then(
   'they see a validation error indicating a minimum of {int} team members is required',
   async function (this: TestWorld, _min: number) {
-    const body = await this.response!.text();
+    const body = await this.getBody();
     if (!body.toLowerCase().includes('minimum')) {
       throw new Error(
         `Expected "minimum" in error response. Got: ${body.substring(0, 400)}`,
@@ -244,7 +244,7 @@ Then(
 Then(
   'they see a validation error indicating a maximum of {int} team members is allowed',
   async function (this: TestWorld, _max: number) {
-    const body = await this.response!.text();
+    const body = await this.getBody();
     if (!body.toLowerCase().includes('maximum')) {
       throw new Error(
         `Expected "maximum" in error response. Got: ${body.substring(0, 400)}`,
@@ -256,7 +256,7 @@ Then(
 Then(
   'they see a validation error indicating a team name is required',
   async function (this: TestWorld) {
-    const body = await this.response!.text();
+    const body = await this.getBody();
     if (!body.toLowerCase().includes('team name')) {
       throw new Error(
         `Expected "team name" in error response. Got: ${body.substring(0, 400)}`,
@@ -281,7 +281,7 @@ Then(
     const status = this.response!.status;
     if ([301, 302, 307, 308].includes(status)) return;
 
-    const body = await this.response!.text();
+    const body = await this.getBody();
     if (body.toLowerCase().includes('register your team')) {
       throw new Error('Registration form was shown but should not have been');
     }
@@ -354,7 +354,7 @@ Then(
 Then(
   'they see the registration form',
   async function (this: TestWorld) {
-    const body = await this.response!.text();
+    const body = await this.getBody();
     if (!body.toLowerCase().includes('register')) {
       throw new Error(`Expected registration form. Got: ${body.substring(0, 400)}`);
     }
