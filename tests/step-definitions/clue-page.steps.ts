@@ -307,6 +307,13 @@ When(
         `${BASE_URL}/api/clue/${this.teamId}/cannot-find`,
         { method: 'POST', redirect: 'follow' },
       );
+    } else if (lowerLabel === 'cancel') {
+      this.response = await fetch(`${BASE_URL}/clue/${this.teamId}`, { redirect: 'follow' });
+    } else if (lowerLabel === 'confirm') {
+      this.response = await fetch(
+        `${BASE_URL}/api/clue/${this.teamId}/skip-confirm`,
+        { method: 'POST', redirect: 'follow' },
+      );
     } else {
       throw new Error(`Unknown button: "${buttonLabel}"`);
     }
