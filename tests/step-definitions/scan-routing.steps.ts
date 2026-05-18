@@ -10,7 +10,8 @@ import { eq, and } from 'drizzle-orm';
 import { TestWorld } from '../support/world';
 import { getActiveGame } from './common.steps';
 
-const BASE_URL = process.env.TEST_BASE_URL || 'http://localhost:3000';
+const BASE_URL_INTERNAL = process.env.TEST_BASE_URL || 'http://localhost:3000';
+
 
 Given(
   'a registration token {string} exists and has not been used in the active game',
@@ -101,14 +102,19 @@ Given(
 When(
   'a user visits {string}',
   async function (this: TestWorld, path: string) {
-    this.response = await fetch(`${BASE_URL}${path}`, { redirect: 'manual' });
+    this.currentUrl = path;
+    const tokenMatch = path.match(/[?&](?:token|id)=([^&]+)/);
+    this.currentToken = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
+    this.response = await fetch(`${BASE_URL_INTERNAL}${path}`, { redirect: 'manual' });
   },
 );
 
 When(
   'a user visits {string} with no id parameter',
   async function (this: TestWorld, path: string) {
-    this.response = await fetch(`${BASE_URL}${path}`, { redirect: 'manual' });
+    this.currentUrl = path;
+    this.currentToken = null;
+    this.response = await fetch(`${BASE_URL_INTERNAL}${path}`, { redirect: 'manual' });
   },
 );
 
@@ -134,7 +140,7 @@ Then(
 
 Then(
   'they are redirected to the active clue page for team {string}',
-  async function (this: TestWorld, _teamName: string) {
+  async function (this: TestWorld, teamName: string) {
     const status = this.response!.status;
     const location = this.response!.headers.get('location') ?? '';
 
@@ -142,6 +148,15 @@ Then(
       throw new Error(
         `Expected a redirect status (3xx) but got ${status}.\nBody: ${await this.response!.text()}`,
       );
+    }
+
+    if (!this.teamId) {
+      const [team] = await db
+        .select()
+        .from(teams)
+        .where(eq(teams.displayName, teamName))
+        .limit(1);
+      this.teamId = team?.id ?? null;
     }
 
     const expectedPath = `/clue/${this.teamId}`;
