@@ -126,7 +126,7 @@ Then(
 
     if (![301, 302, 307, 308].includes(status)) {
       throw new Error(
-        `Expected a redirect status (3xx) but got ${status}.\nBody: ${await this.response!.text()}`,
+        `Expected a redirect status (3xx) but got ${status}.\nBody: ${await this.getBody()}`,
       );
     }
 
@@ -146,7 +146,7 @@ Then(
 
     if (![301, 302, 307, 308].includes(status)) {
       throw new Error(
-        `Expected a redirect status (3xx) but got ${status}.\nBody: ${await this.response!.text()}`,
+        `Expected a redirect status (3xx) but got ${status}.\nBody: ${await this.getBody()}`,
       );
     }
 
@@ -171,7 +171,7 @@ Then(
 Then(
   'they see an error page indicating the code is not recognised',
   async function (this: TestWorld) {
-    const body = await this.response!.text();
+    const body = await this.getBody();
     const lower = body.toLowerCase();
     if (!lower.includes('not recognised') && !lower.includes('not recognized')) {
       throw new Error(
@@ -184,7 +184,7 @@ Then(
 Then(
   'they see a game-over page informing them the game has ended',
   async function (this: TestWorld) {
-    const body = await this.response!.text();
+    const body = await this.getBody();
     const lower = body.toLowerCase();
     if (!lower.includes('game has ended') && !lower.includes('game over')) {
       throw new Error(
