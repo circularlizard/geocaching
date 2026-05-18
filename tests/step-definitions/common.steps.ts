@@ -78,8 +78,16 @@ Given(
 );
 
 Given(
+  'there is an active game',
+  async function (this: TestWorld) {
+    // Satisfied by the fixture
+  },
+);
+
+Given(
   'admin recall has not been triggered',
   async function (this: TestWorld) {
     // Satisfied by the fixture: adminRecallTriggered defaults to false
   },
 );
+
