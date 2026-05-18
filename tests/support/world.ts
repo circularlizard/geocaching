@@ -8,6 +8,7 @@ export class TestWorld extends World {
   currentUrl: string | null = null;
   currentToken: string | null = null;
   currentCacheToken: string | null = null;
+  adminCookieHeader: string | null = null;
 
   constructor(options: IWorldOptions) {
     super(options);

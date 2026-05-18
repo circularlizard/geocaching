@@ -74,5 +74,15 @@ export type NewTeam = typeof teams.$inferInsert;
 export type TeamSequence = typeof teamSequences.$inferSelect;
 export type NewTeamSequence = typeof teamSequences.$inferInsert;
 
+// Game Caches: links specific caches to a game (admin assigns which caches are active for a game)
+export const gameCaches = pgTable('game_caches', {
+  id: serial('id').primaryKey(),
+  gameId: integer('game_id').notNull().references(() => games.id),
+  cacheId: integer('cache_id').notNull().references(() => caches.id),
+});
+
+export type GameCache = typeof gameCaches.$inferSelect;
+export type NewGameCache = typeof gameCaches.$inferInsert;
+
 export type ProgressLog = typeof progressLogs.$inferSelect;
 export type NewProgressLog = typeof progressLogs.$inferInsert;

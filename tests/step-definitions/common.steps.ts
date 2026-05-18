@@ -7,6 +7,7 @@ import {
   games,
   registrationTokens,
   caches,
+  gameCaches,
   teams,
   teamSequences,
   progressLogs,
@@ -18,6 +19,7 @@ export async function clearDatabase() {
   await db.delete(progressLogs);
   await db.delete(teamSequences);
   await db.delete(teams);
+  await db.delete(gameCaches);
   await db.delete(caches);
   await db.delete(registrationTokens);
   await db.delete(games);
@@ -37,6 +39,11 @@ export const FIXTURE_CACHE_TOKENS = [
   'FIXTURE-CACHE-05', 'FIXTURE-CACHE-06', 'FIXTURE-CACHE-07', 'FIXTURE-CACHE-08',
 ];
 
+export const FIXTURE_REG_TOKENS = [
+  'FIXTURE-REG-01', 'FIXTURE-REG-02', 'FIXTURE-REG-03', 'FIXTURE-REG-04',
+  'FIXTURE-REG-05', 'FIXTURE-REG-06', 'FIXTURE-REG-07', 'FIXTURE-REG-08',
+];
+
 export async function seedFixtureCaches() {
   const cacheRows = FIXTURE_CACHE_TOKENS.map((token, i) => ({
     name: `Cache ${i + 1}`,
@@ -45,7 +52,16 @@ export async function seedFixtureCaches() {
     clue3Text: `Clue 3 for cache ${i + 1}`,
     cacheToken: token,
   }));
-  return db.insert(caches).values(cacheRows).returning();
+  const inserted = await db.insert(caches).values(cacheRows).returning();
+
+  const game = await getActiveGame();
+  if (game) {
+    await db.insert(gameCaches).values(
+      inserted.map((c) => ({ gameId: game.id, cacheId: c.id })),
+    );
+  }
+
+  return inserted;
 }
 
 Given(
@@ -59,6 +75,7 @@ Given(
       isActive: true,
       adminRecallTriggered: false,
     });
+    await db.insert(registrationTokens).values(FIXTURE_REG_TOKENS.map((t) => ({ token: t })));
     await seedFixtureCaches();
   },
 );

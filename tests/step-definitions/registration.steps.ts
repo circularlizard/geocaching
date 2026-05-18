@@ -5,6 +5,8 @@ import {
   registrationTokens,
   teams,
   teamSequences,
+  caches,
+  gameCaches,
 } from '@/lib/db/schema';
 import { eq, and, count } from 'drizzle-orm';
 import { TestWorld } from '../support/world';
@@ -116,14 +118,21 @@ Given(
       .set({ isActive: false })
       .where(eq(games.isActive, true));
 
-    await db.insert(games).values({
+    const [newGame] = await db.insert(games).values({
       name: 'New Game',
       gameEndTime: new Date(Date.now() + 4 * 60 * 60 * 1000),
       cacheCount: 8,
       isActive: true,
       adminRecallTriggered: false,
-    });
-    // Caches are global and were already seeded — no need to re-insert
+    }).returning();
+
+    // Assign all existing caches to the new game
+    const allCaches = await db.select().from(caches);
+    if (allCaches.length > 0) {
+      await db.insert(gameCaches).values(
+        allCaches.map((c) => ({ gameId: newGame.id, cacheId: c.id })),
+      );
+    }
   },
 );
 

@@ -26,8 +26,8 @@ The exit condition for the full implementation is: **all Gherkin scenarios pass,
 | 3 — Active Clue Page | ✅ Complete | `7bc578c` |
 | 4 — Cache Found Flow | ✅ Complete | `d481c26` |
 | 5 — Skip Cache Flow | ✅ Complete | `389d994` |
-| 6 — Game Completion | ✅ Complete | pending commit |
-| 7 — Admin Setup | ⬜ Not Started | — |
+| 6 — Game Completion | ✅ Complete | `4d0098c` |
+| 7 — Admin Setup | ✅ Complete | pending commit |
 | 8 — Admin Dashboard | ⬜ Not Started | — |
 | 9 — UI Polish & NFR | ⬜ Not Started | — |
 

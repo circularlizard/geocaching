@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { games, registrationTokens, teams, caches, teamSequences } from '@/lib/db/schema';
+import { games, registrationTokens, teams, caches, teamSequences, gameCaches } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -105,7 +105,13 @@ export async function POST(request: Request) {
     })
     .returning();
 
-  const allCaches = await db.select().from(caches);
+  const assignedRows = await db
+    .select({ cache: caches })
+    .from(gameCaches)
+    .innerJoin(caches, eq(gameCaches.cacheId, caches.id))
+    .where(eq(gameCaches.gameId, activeGame.id));
+
+  const allCaches = assignedRows.map((r) => r.cache);
   const shuffled = shuffleArray(allCaches);
 
   await db.insert(teamSequences).values(
