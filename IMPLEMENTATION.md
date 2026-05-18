@@ -21,8 +21,8 @@ The exit condition for the full implementation is: **all Gherkin scenarios pass,
 |---|---|---|
 | 0 — Scaffold & Local Environment | ✅ Complete | `4b83c6e` |
 | Gherkin feature files (all phases) | ✅ Committed | `094da11` |
-| 1 — Token Routing `/scan` | ✅ Complete | pending commit |
-| 2 — Team Registration | ⬜ Not Started | — |
+| 1 — Token Routing `/scan` | ✅ Complete | `d45bd0d` |
+| 2 — Team Registration | ✅ Complete | pending commit |
 | 3 — Active Clue Page | ⬜ Not Started | — |
 | 4 — Cache Found Flow | ⬜ Not Started | — |
 | 5 — Skip Cache Flow | ⬜ Not Started | — |

@@ -32,6 +32,22 @@ export async function getActiveGame() {
   return game ?? null;
 }
 
+export const FIXTURE_CACHE_TOKENS = [
+  'FIXTURE-CACHE-01', 'FIXTURE-CACHE-02', 'FIXTURE-CACHE-03', 'FIXTURE-CACHE-04',
+  'FIXTURE-CACHE-05', 'FIXTURE-CACHE-06', 'FIXTURE-CACHE-07', 'FIXTURE-CACHE-08',
+];
+
+export async function seedFixtureCaches() {
+  const cacheRows = FIXTURE_CACHE_TOKENS.map((token, i) => ({
+    name: `Cache ${i + 1}`,
+    clue1Text: `Clue 1 for cache ${i + 1}`,
+    clue2Text: `Clue 2 for cache ${i + 1}`,
+    clue3Text: `Clue 3 for cache ${i + 1}`,
+    cacheToken: token,
+  }));
+  return db.insert(caches).values(cacheRows).returning();
+}
+
 Given(
   'the database is seeded with the standard test fixture',
   async function (this: TestWorld) {
@@ -43,6 +59,7 @@ Given(
       isActive: true,
       adminRecallTriggered: false,
     });
+    await seedFixtureCaches();
   },
 );
 
@@ -50,6 +67,13 @@ Given(
   'there is an active game that has not yet reached its end time',
   async function (this: TestWorld) {
     // Satisfied by the fixture: game is created with a future end time
+  },
+);
+
+Given(
+  'there is an active game with 8 caches',
+  async function (this: TestWorld) {
+    // Satisfied by the fixture: game has cacheCount=8 and 8 cache records seeded
   },
 );
 
