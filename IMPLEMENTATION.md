@@ -15,6 +15,24 @@ The exit condition for the full implementation is: **all Gherkin scenarios pass,
 
 ## 2. Implementation Phases
 
+> **Status key:** ✅ Complete | 🚧 In Progress | ⬜ Not Started
+
+| Phase | Status | Git Commit |
+|---|---|---|
+| 0 — Scaffold & Local Environment | ✅ Complete | `4b83c6e` |
+| Gherkin feature files (all phases) | ✅ Committed | `094da11` |
+| 1 — Token Routing `/scan` | ✅ Complete | pending commit |
+| 2 — Team Registration | ⬜ Not Started | — |
+| 3 — Active Clue Page | ⬜ Not Started | — |
+| 4 — Cache Found Flow | ⬜ Not Started | — |
+| 5 — Skip Cache Flow | ⬜ Not Started | — |
+| 6 — Game Completion | ⬜ Not Started | — |
+| 7 — Admin Setup | ⬜ Not Started | — |
+| 8 — Admin Dashboard | ⬜ Not Started | — |
+| 9 — UI Polish & NFR | ⬜ Not Started | — |
+
+---
+
 ### Phase 0: Project Scaffold & Local Environment
 
 **Goal:** A running Next.js app with database connectivity, local services, and a passing test harness — no game logic yet.
