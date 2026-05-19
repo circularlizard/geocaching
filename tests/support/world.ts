@@ -9,6 +9,7 @@ export class TestWorld extends World {
   currentToken: string | null = null;
   currentCacheToken: string | null = null;
   adminCookieHeader: string | null = null;
+  gameCookieHeader: string | null = null;
 
   constructor(options: IWorldOptions) {
     super(options);

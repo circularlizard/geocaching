@@ -66,6 +66,36 @@ Feature: Admin Setup Interface
     Then they see a list of all registration tokens in the system
     And each token shows its secure token value and whether it has been used in the active game
 
+  Scenario: Admin can create a new registration token
+    Given an admin is authenticated
+    When they create a new registration token
+    Then a new registration token is created in the database
+    And it has a secure non-sequential token value
+
+  Scenario: Admin can delete an unused registration token
+    Given an admin is authenticated
+    And a registration token "DELETE-TOKEN-01" exists and has not been used in the active game
+    When they delete registration token "DELETE-TOKEN-01"
+    Then the token is removed from the database
+
+  Scenario: Admin cannot delete a registration token that has been used in the active game
+    Given an admin is authenticated
+    And registration token "USED-TOKEN-01" has been used to register a team in the active game
+    When they attempt to delete registration token "USED-TOKEN-01"
+    Then the deletion is rejected with an error
+
+  Scenario: Admin can delete a cache not assigned to the active game
+    Given an admin is authenticated
+    And a cache "Obsolete Cache" exists and is not assigned to the active game
+    When they delete the cache "Obsolete Cache"
+    Then the cache is removed from the database
+
+  Scenario: Admin cannot delete a cache that is assigned to the active game
+    Given an admin is authenticated
+    And a cache "Active Game Cache" exists and is assigned to the active game
+    When they attempt to delete the cache "Active Game Cache"
+    Then the deletion is rejected with an error
+
   Scenario: Admin can generate registration token QR codes as a downloadable print sheet
     Given an admin is authenticated
     And the active game has registration tokens "REG-TOKEN-01", "REG-TOKEN-02", "REG-TOKEN-03"

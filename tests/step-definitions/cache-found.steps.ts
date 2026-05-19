@@ -354,6 +354,46 @@ Then(
   },
 );
 
+Given(
+  'team {string} has a team session cookie set',
+  async function (this: TestWorld, teamName: string) {
+    const [team] = await db
+      .select()
+      .from(teams)
+      .where(eq(teams.displayName, teamName))
+      .limit(1);
+    if (!team) throw new Error(`Team "${teamName}" not found`);
+    this.teamId = team.id;
+    this.gameCookieHeader = `geocache_team=${team.id}`;
+  },
+);
+
+When(
+  'they scan cache token {string} which is not their current cache',
+  async function (this: TestWorld, cacheToken: string) {
+    const headers: Record<string, string> = {};
+    if (this.gameCookieHeader) headers['Cookie'] = this.gameCookieHeader;
+    this.response = await fetch(`${BASE_URL}/found/${cacheToken}`, {
+      headers,
+      redirect: 'manual',
+    });
+  },
+);
+
+Then(
+  'they see a link to return to their clue page',
+  async function (this: TestWorld) {
+    if (!this.teamId) throw new Error('No teamId set');
+    const body = await this.getBody();
+    const expectedHref = `/clue/${this.teamId}`;
+    if (!body.includes(expectedHref)) {
+      throw new Error(
+        `Expected a link to "${expectedHref}" on the wrong-cache page. Got: ${body.substring(0, 500)}`,
+      );
+    }
+  },
+);
+
 Then(
   'they are redirected to the completion page for team {string}',
   async function (this: TestWorld, teamName: string) {

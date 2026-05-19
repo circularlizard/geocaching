@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { caches, games, teams, teamSequences, progressLogs } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { cookies } from 'next/headers';
 
 async function findCurrentTeamForCache(cacheId: number, gameId: number) {
   const seqs = await db
@@ -52,6 +53,48 @@ export default async function FoundPage({
     return <ErrorPage message="No active game." />;
   }
 
+  const teamCookie = cookies().get('geocache_team')?.value;
+  const cookieTeamId = teamCookie ? parseInt(teamCookie, 10) : null;
+
+  if (cookieTeamId) {
+    const [cookieTeam] = await db
+      .select()
+      .from(teams)
+      .where(and(eq(teams.id, cookieTeamId), eq(teams.gameId, activeGame.id)))
+      .limit(1);
+
+    if (cookieTeam) {
+      const [expectedSeq] = await db
+        .select()
+        .from(teamSequences)
+        .where(
+          and(
+            eq(teamSequences.teamId, cookieTeam.id),
+            eq(teamSequences.sequenceOrder, cookieTeam.currentCacheIndex),
+          ),
+        )
+        .limit(1);
+
+      if (!expectedSeq || expectedSeq.cacheId !== cache.id) {
+        return (
+          <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-white">
+            <div className="max-w-md w-full text-center space-y-4">
+              <div className="text-6xl">⚠️</div>
+              <h1 className="text-2xl font-bold text-red-600">Wrong Cache!</h1>
+              <p className="text-gray-700">This isn&apos;t your next cache. Head back to your current clue.</p>
+              <a
+                href={`/clue/${cookieTeam.id}`}
+                className="inline-block mt-4 w-full bg-blue-600 text-white font-bold py-4 rounded-lg text-lg hover:bg-blue-700 transition-colors"
+              >
+                Return to my clue →
+              </a>
+            </div>
+          </main>
+        );
+      }
+    }
+  }
+
   const match = await findCurrentTeamForCache(cache.id, activeGame.id);
 
   if (!match) {
@@ -69,7 +112,7 @@ export default async function FoundPage({
       return <ErrorPage message="This cache has already been found by your team." />;
     }
 
-    return <ErrorPage message="This is not your next cache." />;
+    return <ErrorPage message="This is not your next cache. Scan your registration QR card to return to your current clue." />;
   }
 
   const { team } = match;

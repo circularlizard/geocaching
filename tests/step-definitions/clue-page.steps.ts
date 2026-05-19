@@ -478,6 +478,19 @@ Then(
 );
 
 Then(
+  'they see the name of the current cache on the page',
+  async function (this: TestWorld) {
+    if (!this.teamId) throw new Error('No teamId set');
+    const body = await this.getBody();
+    const cache = await getCurrentCacheForTeam(this.teamId, 0);
+    if (!cache) throw new Error('Could not resolve current cache for team');
+    if (!body.includes(cache.name)) {
+      throw new Error(`Expected cache name "${cache.name}" on clue page. Got: ${body.substring(0, 500)}`);
+    }
+  },
+);
+
+Then(
   'they see a game-over message informing them the game has ended',
   async function (this: TestWorld) {
     const body = await this.getBody();

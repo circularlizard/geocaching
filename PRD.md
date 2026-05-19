@@ -11,9 +11,10 @@ The objective of this application is to support a geocaching game where teams na
 3. Location Sequence: The sequence for each team should be {start}, sequence of caches, {return to base}. There are approximately 8 locations in total. The sequence of caches is unique for each team to prevent tailing. The number of caches is configured per game and cache sequences are auto-generated randomly by the system during game setup.  
 4. Upon scanning a **Cache Location Code**, the user is directed to a webpage where the app records the cache as found (scoring is calculated based on clues used). The user must then confirm that they have replaced the cache box in its original location. Once confirmed, they are shown the first clue for the next location. If stuck, they can request a second clue, and subsequently a third clue which includes a photograph of the location, directly from the active clue page.   
    Additionally, **once the team has requested the third clue**, they have an option to declare they cannot find the cache. If they choose this, they must confirm via an "Are you sure?" prompt, which results in 0 points for that cache and immediate delivery of the clue for the next location in their sequence.  
-5. Active Clue Page: This page must display the team name, current score, and the current clue text or image. It must also provide an option to request the next clue (if available) and the option to skip the cache if the third clue has already been requested.  
+5. Active Clue Page: This page must display the team name, current score, the name of the cache the team is currently looking for, and the current clue text or image. It must also provide an option to request the next clue (if available) and the option to skip the cache if the third clue has already been requested.  
 6. Completion and Return to Base: After the last cache in the sequence is found, a team should see a congratulatory message telling them to return to base. The game must be completed within a specified time limit; points earned after this window will not be counted.  
 7. End of Game Handling: Any Cache Location Code scan that occurs after the global Game End Time has expired or after an Admin Recall has been initiated will result in a message informing the team that the game is over.
+8. Wrong Cache Handling: When a team member scans a Cache Location Code that is not their current expected cache, the app must display a clear error message and redirect them to their active clue page so they can continue from the correct location.
 
 # 3\. Scoring and Data Requirements
 
@@ -46,6 +47,8 @@ Administrators require a web interface to manage the game setup:
 * Administrative monitoring interface: A real-time dashboard displaying all registered teams, their members, progress through the sequence of clues with associated timestamps, and a global control to terminate the game and recall teams.  
 * Reset or re-run capability: Admins can create a new Game at any time (e.g. for test runs). Registration Codes are scoped to a specific Game — if a Registration Code QR card is scanned in the context of a new Game in which it has not yet been used, a fresh registration flow is triggered for that Game.
 * Expected scale: approximately 8 teams per game. This is not a hard limit; the system should not impose a maximum number of teams.
+* **Registration Token Management:** Admins can create new Registration Tokens at any time. Admins can delete a Registration Token provided it has not been used (i.e. no team has registered with it) in the currently active game.
+* **Cache Deletion:** Admins can delete a cache record provided the cache is not currently assigned to the active game. If the cache is assigned to the active game it must first be unassigned before it can be deleted.
 
 ## 4.1 QR Code Management
 

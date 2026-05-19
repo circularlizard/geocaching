@@ -4,6 +4,7 @@ import { registrationTokens, teams, games } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import QRCode from 'qrcode';
 import PrintButton from '@/components/PrintButton';
+import { AddTokenButton, DeleteTokenButton } from './TokenActions';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
@@ -50,7 +51,8 @@ export default async function AdminTokensPage() {
               </p>
             )}
           </div>
-          <div className="flex gap-3 items-center">
+          <div className="flex gap-3 items-center flex-wrap">
+            <AddTokenButton />
             <PrintButton />
             <a href="/admin/dashboard" className="text-blue-600 hover:underline text-sm">
               ← Dashboard
@@ -68,7 +70,7 @@ export default async function AdminTokensPage() {
               key={token.id}
               className="border border-gray-300 rounded-xl p-6 text-center space-y-3 print:border-black print:rounded-none print:break-inside-avoid"
             >
-              <div className="flex justify-end print:hidden">
+              <div className="flex justify-between items-center print:hidden">
                 <span
                   className={`text-xs font-medium px-2 py-1 rounded-full ${
                     used ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
@@ -76,6 +78,7 @@ export default async function AdminTokensPage() {
                 >
                   {used ? 'Used' : 'Unused'}
                 </span>
+                {!used && <DeleteTokenButton tokenId={token.id} />}
               </div>
               <div
                 className="w-48 h-48 mx-auto"

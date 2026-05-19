@@ -4,6 +4,7 @@ import { caches, games, gameCaches } from '@/lib/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import CreateCacheForm from './CreateCacheForm';
 import AssignCachesForm from './AssignCachesForm';
+import DeleteCacheButton from './DeleteCacheButton';
 
 export default async function AdminCachesPage() {
   requireAdminAuth();
@@ -85,6 +86,7 @@ export default async function AdminCachesPage() {
                     >
                       View details
                     </a>
+                    {!c.assigned && <DeleteCacheButton cacheId={c.id} />}
                   </div>
                 </div>
               ))}

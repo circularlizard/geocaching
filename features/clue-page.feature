@@ -22,6 +22,10 @@ Feature: Active Clue Page
     And they do not see Clue 3
     And they do not see a "Cannot find cache" button
 
+  Scenario: Clue page shows the name of the cache the team is looking for
+    When a user visits the clue page for team "The Finders"
+    Then they see the name of the current cache on the page
+
   Scenario: Requesting Clue 2 reveals Clue 2 and records timestamp
     Given a user is on the clue page for team "The Finders"
     When they click "Request next clue"

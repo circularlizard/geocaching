@@ -7,6 +7,7 @@ import {
   caches,
   gameCaches,
   registrationTokens,
+  teams,
 } from '@/lib/db/schema';
 import { eq, and, asc } from 'drizzle-orm';
 import { TestWorld } from '../support/world';
@@ -167,6 +168,95 @@ Given(
         })),
       );
     }
+  },
+);
+
+Given(
+  'registration token {string} has been used to register a team in the active game',
+  async function (this: TestWorld, tokenValue: string) {
+    let [token] = await db
+      .select()
+      .from(registrationTokens)
+      .where(eq(registrationTokens.token, tokenValue))
+      .limit(1);
+    if (!token) {
+      [token] = await db.insert(registrationTokens).values({ token: tokenValue }).returning();
+    }
+    this.currentToken = String(token.id);
+
+    const [activeGame] = await db.select().from(games).where(eq(games.isActive, true)).limit(1);
+    if (!activeGame) throw new Error('No active game');
+
+    const [existing] = await db
+      .select()
+      .from(teams)
+      .where(and(eq(teams.registrationTokenId, token.id), eq(teams.gameId, activeGame.id)))
+      .limit(1);
+    if (!existing) {
+      await db.insert(teams).values({
+        gameId: activeGame.id,
+        registrationTokenId: token.id,
+        displayName: `Team-${tokenValue}`,
+        members: JSON.stringify(['A', 'B', 'C', 'D']),
+        currentCacheIndex: 0,
+      });
+    }
+  },
+);
+
+Given(
+  'a cache {string} exists and is not assigned to the active game',
+  async function (this: TestWorld, cacheName: string) {
+    let [cache] = await db.select().from(caches).where(eq(caches.name, cacheName)).limit(1);
+    if (!cache) {
+      [cache] = await db
+        .insert(caches)
+        .values({
+          name: cacheName,
+          clue1Text: 'Clue 1',
+          clue2Text: 'Clue 2',
+          clue3Text: 'Clue 3',
+          cacheToken: `TOKEN-${cacheName.replace(/\s+/g, '-').toUpperCase()}-UNASSIGNED`,
+        })
+        .returning();
+    }
+    const [activeGame] = await db.select().from(games).where(eq(games.isActive, true)).limit(1);
+    if (activeGame) {
+      await db
+        .delete(gameCaches)
+        .where(and(eq(gameCaches.cacheId, cache.id), eq(gameCaches.gameId, activeGame.id)));
+    }
+    this.currentCacheToken = String(cache.id);
+  },
+);
+
+Given(
+  'a cache {string} exists and is assigned to the active game',
+  async function (this: TestWorld, cacheName: string) {
+    let [cache] = await db.select().from(caches).where(eq(caches.name, cacheName)).limit(1);
+    if (!cache) {
+      [cache] = await db
+        .insert(caches)
+        .values({
+          name: cacheName,
+          clue1Text: 'Clue 1',
+          clue2Text: 'Clue 2',
+          clue3Text: 'Clue 3',
+          cacheToken: `TOKEN-${cacheName.replace(/\s+/g, '-').toUpperCase()}-ASSIGNED`,
+        })
+        .returning();
+    }
+    const [activeGame] = await db.select().from(games).where(eq(games.isActive, true)).limit(1);
+    if (!activeGame) throw new Error('No active game');
+    const [existing] = await db
+      .select()
+      .from(gameCaches)
+      .where(and(eq(gameCaches.cacheId, cache.id), eq(gameCaches.gameId, activeGame.id)))
+      .limit(1);
+    if (!existing) {
+      await db.insert(gameCaches).values({ gameId: activeGame.id, cacheId: cache.id });
+    }
+    this.currentCacheToken = String(cache.id);
   },
 );
 
@@ -336,6 +426,77 @@ When(
       method: 'POST',
       headers: adminHeaders(this),
       body: JSON.stringify({ cacheIds: selected }),
+      redirect: 'follow',
+    });
+  },
+);
+
+When(
+  'they create a new registration token',
+  async function (this: TestWorld) {
+    this.response = await fetch(`${BASE_URL}/api/admin/tokens/create`, {
+      method: 'POST',
+      headers: adminHeaders(this),
+      redirect: 'follow',
+    });
+  },
+);
+
+When(
+  'they delete registration token {string}',
+  async function (this: TestWorld, tokenValue: string) {
+    const [token] = await db
+      .select()
+      .from(registrationTokens)
+      .where(eq(registrationTokens.token, tokenValue))
+      .limit(1);
+    if (!token) throw new Error(`Token "${tokenValue}" not found`);
+    this.response = await fetch(`${BASE_URL}/api/admin/tokens/${token.id}`, {
+      method: 'DELETE',
+      headers: adminHeaders(this),
+      redirect: 'follow',
+    });
+  },
+);
+
+When(
+  'they attempt to delete registration token {string}',
+  async function (this: TestWorld, tokenValue: string) {
+    const [token] = await db
+      .select()
+      .from(registrationTokens)
+      .where(eq(registrationTokens.token, tokenValue))
+      .limit(1);
+    if (!token) throw new Error(`Token "${tokenValue}" not found`);
+    this.response = await fetch(`${BASE_URL}/api/admin/tokens/${token.id}`, {
+      method: 'DELETE',
+      headers: adminHeaders(this),
+      redirect: 'follow',
+    });
+  },
+);
+
+When(
+  'they delete the cache {string}',
+  async function (this: TestWorld, cacheName: string) {
+    const [cache] = await db.select().from(caches).where(eq(caches.name, cacheName)).limit(1);
+    if (!cache) throw new Error(`Cache "${cacheName}" not found`);
+    this.response = await fetch(`${BASE_URL}/api/admin/cache/${cache.id}`, {
+      method: 'DELETE',
+      headers: adminHeaders(this),
+      redirect: 'follow',
+    });
+  },
+);
+
+When(
+  'they attempt to delete the cache {string}',
+  async function (this: TestWorld, cacheName: string) {
+    const [cache] = await db.select().from(caches).where(eq(caches.name, cacheName)).limit(1);
+    if (!cache) throw new Error(`Cache "${cacheName}" not found`);
+    this.response = await fetch(`${BASE_URL}/api/admin/cache/${cache.id}`, {
+      method: 'DELETE',
+      headers: adminHeaders(this),
       redirect: 'follow',
     });
   },
@@ -574,6 +735,61 @@ Then(
     if (!game) throw new Error('No active game');
     if (game.cacheCount !== expectedCount) {
       throw new Error(`Expected cacheCount ${expectedCount} but got ${game.cacheCount}`);
+    }
+  },
+);
+
+Then(
+  'a new registration token is created in the database',
+  async function (this: TestWorld) {
+    const body = await this.getBody();
+    const parsed = JSON.parse(body);
+    if (!parsed.token?.id) {
+      throw new Error(`Expected new token in response. Got: ${body.substring(0, 400)}`);
+    }
+  },
+);
+
+Then(
+  'it has a secure non-sequential token value',
+  async function (this: TestWorld) {
+    const body = await this.getBody();
+    const parsed = JSON.parse(body);
+    if (!parsed.token?.token || parsed.token.token.length < 8) {
+      throw new Error(`Expected a secure token value. Got: ${body.substring(0, 400)}`);
+    }
+  },
+);
+
+Then(
+  'the token is removed from the database',
+  async function (this: TestWorld) {
+    const body = await this.getBody();
+    const parsed = JSON.parse(body);
+    if (!parsed.ok) {
+      throw new Error(`Expected ok:true. Got: ${body.substring(0, 400)}`);
+    }
+  },
+);
+
+Then(
+  'the deletion is rejected with an error',
+  async function (this: TestWorld) {
+    const status = this.response!.status;
+    if (status !== 409 && status !== 400 && status !== 403) {
+      const body = await this.getBody();
+      throw new Error(`Expected 409/400/403 for rejected deletion. Got status ${status}: ${body.substring(0, 400)}`);
+    }
+  },
+);
+
+Then(
+  'the cache is removed from the database',
+  async function (this: TestWorld) {
+    const body = await this.getBody();
+    const parsed = JSON.parse(body);
+    if (!parsed.ok) {
+      throw new Error(`Expected ok:true. Got: ${body.substring(0, 400)}`);
     }
   },
 );
