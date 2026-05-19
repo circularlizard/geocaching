@@ -4,6 +4,7 @@ import { caches } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { ADMIN_COOKIE_NAME, ADMIN_COOKIE_VALUE } from '@/lib/admin-auth';
 import { randomUUID } from 'crypto';
+import * as Minio from 'minio';
 
 function isAuthed(request: Request): boolean {
   const cookie = request.headers.get('cookie') ?? '';
@@ -12,32 +13,49 @@ function isAuthed(request: Request): boolean {
 
 async function uploadToStorage(
   filename: string,
-  arrayBuffer: ArrayBuffer,
+  buffer: Buffer,
   mimeType: string,
 ): Promise<string> {
-  const endpoint = process.env.MINIO_ENDPOINT;
+  const endpointRaw = process.env.MINIO_ENDPOINT;
   const accessKey = process.env.MINIO_ACCESS_KEY;
   const secretKey = process.env.MINIO_SECRET_KEY;
   const bucket = process.env.MINIO_BUCKET ?? 'geocache';
 
-  if (endpoint && accessKey && secretKey) {
-    try {
-      const url = `${endpoint}/${bucket}/${filename}`;
-      const res = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': mimeType,
-          'Content-Length': String(arrayBuffer.byteLength),
-        },
-        body: arrayBuffer,
-      });
-      if (res.ok) return url;
-    } catch {
-      // fall through to placeholder
-    }
+  if (!endpointRaw || !accessKey || !secretKey) {
+    throw new Error('MinIO environment variables are not configured');
   }
 
-  return `/clue3-images/${filename}`;
+  const endpointUrl = new URL(endpointRaw);
+  const client = new Minio.Client({
+    endPoint: endpointUrl.hostname,
+    port: endpointUrl.port ? parseInt(endpointUrl.port, 10) : undefined,
+    useSSL: endpointUrl.protocol === 'https:',
+    accessKey,
+    secretKey,
+  });
+
+  const exists = await client.bucketExists(bucket);
+  if (!exists) {
+    await client.makeBucket(bucket);
+    await client.setBucketPolicy(
+      bucket,
+      JSON.stringify({
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Principal: { AWS: ['*'] },
+            Action: ['s3:GetObject'],
+            Resource: [`arn:aws:s3:::${bucket}/*`],
+          },
+        ],
+      }),
+    );
+  }
+
+  await client.putObject(bucket, filename, buffer, buffer.length, { 'Content-Type': mimeType });
+
+  return `${endpointRaw}/${bucket}/${filename}`;
 }
 
 export async function POST(
@@ -60,8 +78,15 @@ export async function POST(
   const ext = file.name.split('.').pop() ?? 'jpg';
   const filename = `clue3-${cacheId}-${randomUUID().slice(0, 8)}.${ext}`;
   const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
 
-  const imageUrl = await uploadToStorage(filename, arrayBuffer, file.type || 'image/jpeg');
+  let imageUrl: string;
+  try {
+    imageUrl = await uploadToStorage(filename, buffer, file.type || 'image/jpeg');
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Upload failed';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 
   const [updated] = await db
     .update(caches)

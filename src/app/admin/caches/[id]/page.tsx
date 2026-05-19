@@ -4,6 +4,7 @@ import { caches } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import EditClueForm from './EditClueForm';
+import UploadImageForm from './UploadImageForm';
 
 export default async function AdminCacheEditPage({ params }: { params: { id: string } }) {
   requireAdminAuth();
@@ -33,16 +34,10 @@ export default async function AdminCacheEditPage({ params }: { params: { id: str
           <EditClueForm cacheId={cache.id} clue="clue3" initialText={cache.clue3Text} />
         </section>
 
-        {cache.clue3ImageUrl && (
-          <section className="bg-white rounded-xl shadow p-6 space-y-3">
-            <h2 className="text-xl font-semibold text-gray-800">Clue 3 Image</h2>
-            <img
-              src={cache.clue3ImageUrl}
-              alt="Clue 3"
-              className="max-w-sm rounded-lg border border-gray-200"
-            />
-          </section>
-        )}
+        <section className="bg-white rounded-xl shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-800">Clue 3 Image</h2>
+          <UploadImageForm cacheId={cache.id} currentImageUrl={cache.clue3ImageUrl ?? null} />
+        </section>
       </div>
     </main>
   );
