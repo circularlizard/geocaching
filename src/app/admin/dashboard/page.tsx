@@ -52,6 +52,7 @@ export default async function AdminDashboardPage() {
           cacheName: seq.cacheName,
           foundTimestamp: log?.foundTimestamp ?? null,
           skipped: log?.skipped ?? false,
+          points: log?.points ?? null,
         };
       });
 
@@ -82,7 +83,15 @@ export default async function AdminDashboardPage() {
 
   function formatTime(ts: Date | null): string {
     if (!ts) return '';
-    return ts.toISOString().substring(11, 16);
+    return ts.toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function badgeClass(cr: { skipped: boolean; foundTimestamp: Date | null; points: number | null }): string {
+    if (cr.skipped) return 'bg-red-100 text-red-700';
+    if (!cr.foundTimestamp) return 'bg-gray-100 text-gray-400';
+    if (cr.points === 5) return 'bg-green-100 text-green-800';
+    if (cr.points === 3) return 'bg-blue-100 text-blue-700';
+    return 'bg-orange-100 text-orange-700';
   }
 
   return (
@@ -136,20 +145,14 @@ export default async function AdminDashboardPage() {
                   {cacheRows.map((cr) => (
                     <span
                       key={cr.cacheNumber}
-                      className={`px-2 py-1 rounded ${
-                        cr.skipped
-                          ? 'bg-red-100 text-red-700'
-                          : cr.foundTimestamp
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-gray-100 text-gray-400'
-                      }`}
+                      className={`px-2 py-1 rounded font-medium ${badgeClass(cr)}`}
                       title={cr.cacheName}
                     >
                       #{cr.cacheNumber} {cr.cacheName}:{' '}
                       {cr.skipped
                         ? 'Skipped'
                         : cr.foundTimestamp
-                          ? formatTime(cr.foundTimestamp)
+                          ? `${formatTime(cr.foundTimestamp)} (${cr.points}pt${cr.points !== 1 ? 's' : ''})`
                           : '—'}
                     </span>
                   ))}
@@ -160,6 +163,17 @@ export default async function AdminDashboardPage() {
           {teamData.length === 0 && (
             <p className="px-6 py-4 text-gray-400">No teams registered yet.</p>
           )}
+        </div>
+
+        <div className="bg-white rounded-xl shadow px-6 py-4">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Legend</p>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="px-2 py-1 rounded font-medium bg-green-100 text-green-800">5 pts — found with Clue 1 only</span>
+            <span className="px-2 py-1 rounded font-medium bg-blue-100 text-blue-700">3 pts — used Clue 2</span>
+            <span className="px-2 py-1 rounded font-medium bg-orange-100 text-orange-700">1 pt — used Clue 3</span>
+            <span className="px-2 py-1 rounded font-medium bg-red-100 text-red-700">Skipped</span>
+            <span className="px-2 py-1 rounded font-medium bg-gray-100 text-gray-400">Not yet found</span>
+          </div>
         </div>
 
         <div className="flex gap-3 flex-wrap">
