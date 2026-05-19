@@ -35,6 +35,11 @@ export default defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
+
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 5'] },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
