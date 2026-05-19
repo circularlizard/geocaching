@@ -10,21 +10,21 @@ export default function FoundItButton() {
       {!showMessage ? (
         <button
           onClick={() => setShowMessage(true)}
-          className="w-full bg-green-100 text-green-700 font-semibold py-2 rounded-lg text-base hover:bg-green-200 transition-colors border border-green-300"
+          className="w-full bg-green-600 text-white font-bold py-4 rounded-lg text-lg hover:bg-green-700 transition-colors shadow-sm"
         >
-          ✓ Found it!
+          ✓ I Found It!
         </button>
       ) : (
-        <div className="bg-green-50 border border-green-300 rounded-lg px-4 py-3 text-center">
-          <p className="text-green-800 font-medium mb-1">Great!</p>
-          <p className="text-green-700 text-sm">
+        <div className="bg-green-50 border border-green-300 rounded-lg px-4 py-4 text-center">
+          <p className="text-green-800 font-semibold mb-2 text-lg">🎉 Great job!</p>
+          <p className="text-green-700">
             Scan the <strong>QR code</strong> inside the geocache box to record your find.
           </p>
           <button
             onClick={() => setShowMessage(false)}
-            className="mt-2 text-xs text-green-600 hover:text-green-800 underline"
+            className="mt-3 text-sm text-green-600 hover:text-green-800 underline"
           >
-            Hide
+            Hide message
           </button>
         </div>
       )}
