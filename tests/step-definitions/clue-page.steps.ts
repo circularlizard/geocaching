@@ -293,9 +293,21 @@ When(
 When(
   'they click {string}',
   async function (this: TestWorld, buttonLabel: string) {
-    if (!this.teamId) throw new Error('No teamId set in world');
-
     const lowerLabel = buttonLabel.toLowerCase();
+
+    if (!this.teamId && this.adminCookieHeader) {
+      const headers: Record<string, string> = { Cookie: this.adminCookieHeader };
+      if (lowerLabel === 'cancel') {
+        this.response = await fetch(`${BASE_URL}/admin/dashboard`, { headers, redirect: 'follow' });
+        return;
+      }
+      if (lowerLabel === 'recall all teams') {
+        this.response = await fetch(`${BASE_URL}/admin/recall-confirm`, { headers, redirect: 'follow' });
+        return;
+      }
+    }
+
+    if (!this.teamId) throw new Error('No teamId set in world');
 
     if (lowerLabel.includes('request next clue')) {
       this.response = await fetch(

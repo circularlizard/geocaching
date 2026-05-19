@@ -284,6 +284,18 @@ Then(
 );
 
 Then(
+  '{int} point is recorded for cache {int} in the progress log',
+  async function (this: TestWorld, expectedPoints: number, cacheNum: number) {
+    if (!this.teamId) throw new Error('No teamId set');
+    const log = await getProgressLogForTeamCache(this.teamId, cacheNum);
+    if (!log) throw new Error(`No progress log found for cache ${cacheNum}`);
+    if (log.points !== expectedPoints) {
+      throw new Error(`Expected ${expectedPoints} points but found ${log.points}`);
+    }
+  },
+);
+
+Then(
   'the team\'s current cache index advances to cache {int}',
   async function (this: TestWorld, expectedCacheNum: number) {
     if (!this.teamId) throw new Error('No teamId set');
