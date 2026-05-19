@@ -109,7 +109,7 @@ async function getCurrentCacheForTeam(teamId: number, cacheIndex: number) {
 // ── Given steps ──────────────────────────────────────────────────────────────
 
 Given(
-  'team {string} is registered and on cache {int} of their sequence',
+  'team {string} is registered and on geocache {int} of their sequence',
   async function (this: TestWorld, teamName: string, cacheNum: number) {
     const token = `TOKEN-${teamName.replace(/\s+/g, '-').toUpperCase()}`;
     const team = await createTeamWithSequence(teamName, token, cacheNum - 1);
@@ -120,6 +120,44 @@ Given(
 Given(
   'cache {int} in their sequence has:',
   async function (this: TestWorld, cacheNum: number, dataTable: DataTable) {
+    if (!this.teamId) throw new Error('No teamId set — register team first');
+
+    const data = dataTable.rowsHash() as {
+      clue1?: string;
+      clue2?: string;
+      clue3?: string;
+      clue3_image?: string;
+    };
+
+    const [seq] = await db
+      .select()
+      .from(teamSequences)
+      .where(
+        and(
+          eq(teamSequences.teamId, this.teamId),
+          eq(teamSequences.sequenceOrder, cacheNum - 1),
+        ),
+      )
+      .limit(1);
+
+    if (!seq) throw new Error(`No sequence entry at position ${cacheNum - 1}`);
+
+    await db
+      .update(caches)
+      .set({
+        ...(data.clue1 ? { clue1Text: data.clue1 } : {}),
+        ...(data.clue2 ? { clue2Text: data.clue2 } : {}),
+        ...(data.clue3 ? { clue3Text: data.clue3 } : {}),
+        ...(data.clue3_image ? { clue3ImageUrl: data.clue3_image } : {}),
+      })
+      .where(eq(caches.id, seq.cacheId));
+  },
+);
+
+Given(
+  'geocache {int} in their sequence has:',
+  async function (this: TestWorld, cacheNum: number, dataTable: DataTable) {
+    // Alias for cache - same implementation
     if (!this.teamId) throw new Error('No teamId set — register team first');
 
     const data = dataTable.rowsHash() as {
@@ -168,7 +206,7 @@ Given(
 );
 
 Given(
-  'team {string} has already requested Clue 2 for their current cache',
+  'team {string} has already requested Clue 2 for their current geocache',
   async function (this: TestWorld, teamName: string) {
     const team = await getTeamByName(teamName);
     if (!team) throw new Error(`Team "${teamName}" not found`);
@@ -202,7 +240,7 @@ Given(
 );
 
 Given(
-  'team {string} has already requested Clue 3 for their current cache',
+  'team {string} has already requested Clue 3 for their current geocache',
   async function (this: TestWorld, teamName: string) {
     const team = await getTeamByName(teamName);
     if (!team) throw new Error(`Team "${teamName}" not found`);
@@ -228,7 +266,7 @@ Given(
 );
 
 Given(
-  'team {string} has just confirmed finding cache 1 and advanced to cache 2',
+  'team {string} has just confirmed finding geocache 1 and advanced to geocache 2',
   async function (this: TestWorld, teamName: string) {
     const team = await getTeamByName(teamName);
     if (!team) throw new Error(`Team "${teamName}" not found`);
@@ -253,7 +291,7 @@ Given(
 );
 
 Given(
-  'team {string} has found {int} caches using {int} clue each \\({int} points total\\)',
+  'team {string} has found {int} geocaches using {int} clue each \\({int} points total\\)',
   async function (this: TestWorld, teamName: string, numCaches: number, _cluesEach: number, _totalPoints: number) {
     const team = await getTeamByName(teamName);
     if (!team) throw new Error(`Team "${teamName}" not found`);
@@ -314,7 +352,7 @@ When(
         `${BASE_URL}/api/clue/${this.teamId}/request-next`,
         { method: 'POST', redirect: 'follow' },
       );
-    } else if (lowerLabel.includes('cannot find')) {
+    } else if (lowerLabel.includes('cannot find geocache')) {
       this.response = await fetch(
         `${BASE_URL}/api/clue/${this.teamId}/cannot-find`,
         { method: 'POST', redirect: 'follow' },
@@ -367,7 +405,7 @@ Then(
 );
 
 Then(
-  'they see Clue {int} for cache {int}',
+  'they see Clue {int} for geocache {int}',
   async function (this: TestWorld, clueNum: number, cacheNum: number) {
     if (!this.teamId) throw new Error('No teamId set');
     const cache = await getCurrentCacheForTeam(this.teamId, cacheNum - 1);
@@ -478,7 +516,7 @@ Then(
 );
 
 Then(
-  'they see the name of the current cache on the page',
+  'they see the name of the current geocache on the page',
   async function (this: TestWorld) {
     if (!this.teamId) throw new Error('No teamId set');
     const body = await this.getBody();

@@ -3,7 +3,7 @@ import { caches, games, teams, teamSequences, progressLogs } from '@/lib/db/sche
 import { eq, and } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 
-export const metadata = { title: 'Cache Found!' };
+export const metadata = { title: 'Geocache Found!' };
 
 async function findCurrentTeamForCache(cacheId: number, gameId: number) {
   const seqs = await db
@@ -82,8 +82,8 @@ export default async function FoundPage({
           <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-white">
             <div className="max-w-md w-full text-center space-y-4">
               <div className="text-6xl">⚠️</div>
-              <h1 className="text-2xl font-bold text-red-600">Wrong Cache!</h1>
-              <p className="text-gray-700">This isn&apos;t your next cache. Head back to your current clue.</p>
+              <h1 className="text-2xl font-bold text-red-600">Wrong Geocache!</h1>
+              <p className="text-gray-700">This isn&apos;t your next geocache. Head back to your current clue.</p>
               <a
                 href={`/clue/${cookieTeam.id}`}
                 className="inline-block mt-4 w-full bg-blue-600 text-white font-bold py-4 rounded-lg text-lg hover:bg-blue-700 transition-colors"
@@ -111,10 +111,10 @@ export default async function FoundPage({
       .limit(1);
 
     if (existingLog?.foundTimestamp) {
-      return <ErrorPage message="This cache has already been found by your team." />;
+      return <ErrorPage message="This geocache has already been found by your team." />;
     }
 
-    return <ErrorPage message="This is not your next cache. Scan your registration QR card to return to your current clue." />;
+    return <ErrorPage message="This is not your next geocache. Scan your registration QR card to return to your current clue." />;
   }
 
   const { team } = match;
@@ -155,19 +155,19 @@ export default async function FoundPage({
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-white">
       <div className="max-w-md w-full space-y-6 text-center">
         <div className="text-6xl">🎉</div>
-        <h1 className="text-3xl font-bold text-green-700">Cache Found!</h1>
+        <h1 className="text-3xl font-bold text-green-700">Geocache Found!</h1>
         <p className="text-lg text-gray-700">
-          Well done, <span className="font-semibold">{team.displayName}</span>! You found the cache.
+          Well done, <span className="font-semibold">{team.displayName}</span>! You found the geocache.
         </p>
         <div className="bg-green-50 border border-green-200 rounded-lg py-3 px-4">
           <p className="text-green-800 font-semibold text-lg">
             🏆 You will earn{' '}
             <span className="text-2xl">{potentialPoints}</span>{' '}
-            point{potentialPoints !== 1 ? 's' : ''} for this cache!
+            point{potentialPoints !== 1 ? 's' : ''} for this geocache!
           </p>
         </div>
         <p className="text-gray-600">
-          Please replace the cache box exactly as you found it, then confirm below.
+          Please replace the geocache box exactly as you found it, then confirm below.
         </p>
 
         <form action={`/api/cache/${cacheToken}/confirm`} method="post">
@@ -176,7 +176,7 @@ export default async function FoundPage({
             type="submit"
             className="w-full bg-green-600 text-white font-bold py-4 rounded-lg text-xl hover:bg-green-700 transition-colors"
           >
-            ✓ I have replaced the cache box
+            ✓ I have replaced the geocache box
           </button>
         </form>
       </div>

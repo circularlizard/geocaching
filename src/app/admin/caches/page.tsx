@@ -7,7 +7,7 @@ import DeleteCacheButton from './DeleteCacheButton';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
-export const metadata = { title: 'Manage Caches' };
+export const metadata = { title: 'Manage Geocaches' };
 
 export default async function AdminCachesPage() {
   requireAdminAuth();
@@ -40,12 +40,12 @@ export default async function AdminCachesPage() {
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-3xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Manage Caches</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Manage Geocaches</h1>
           <a
             href="/admin/cache-qr-sheet"
             className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
-            Cache QR Codes
+            Geocache QR Codes
           </a>
         </div>
 
@@ -53,11 +53,11 @@ export default async function AdminCachesPage() {
 
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
           <h2 className="text-xl font-semibold text-gray-800">
-            All Caches ({allCaches.length})
+            All Geocaches ({allCaches.length})
           </h2>
 
           {allCaches.length === 0 ? (
-            <p className="text-gray-400 text-sm">No caches yet. Create one above.</p>
+            <p className="text-gray-400 text-sm">No geocaches yet. Create one above.</p>
           ) : (
             <div className="divide-y">
               {cacheItems.map((c) => (

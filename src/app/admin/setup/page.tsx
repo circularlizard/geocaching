@@ -47,7 +47,7 @@ export default async function AdminSetupPage() {
                   <p className="font-medium">{activeGame.name}</p>
                 </div>
                 <div>
-                  <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Caches</p>
+                  <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Geocaches</p>
                   <p className="font-medium">{activeGame.cacheCount}</p>
                 </div>
               </div>
@@ -60,9 +60,9 @@ export default async function AdminSetupPage() {
             {allCaches.length > 0 && (
               <section className="bg-white rounded-xl shadow p-6 space-y-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-800">Caches in Game</h2>
+                  <h2 className="text-xl font-semibold text-gray-800">Geocaches in Game</h2>
                   <p className="text-sm text-gray-500 mt-1">
-                    Select which caches are active for <strong>{activeGame.name}</strong>.
+                    Select which geocaches are active for <strong>{activeGame.name}</strong>.
                   </p>
                 </div>
                 <AssignCachesForm gameId={activeGame.id} caches={cacheItems} />
@@ -96,7 +96,7 @@ export default async function AdminSetupPage() {
                   <div>
                     <p className="font-medium text-gray-900">{g.name}</p>
                     <p className="text-xs text-gray-500">
-                      Ends {g.gameEndTime.toLocaleString()} · {g.cacheCount} caches
+                      Ends {g.gameEndTime.toLocaleString()} · {g.cacheCount} geocaches
                     </p>
                   </div>
                   <span

@@ -60,7 +60,7 @@ export default async function AdminDashboardPage() {
       const isComplete = team.currentCacheIndex >= totalCaches;
       const cacheProgress = isComplete
         ? `Completed (${totalCaches} of ${totalCaches})`
-        : `Cache ${team.currentCacheIndex + 1} of ${totalCaches}`;
+        : `Geocache ${team.currentCacheIndex + 1} of ${totalCaches}`;
 
       return {
         team,

@@ -71,14 +71,60 @@ Given(
 );
 
 Given(
-  'team {string} has viewed only Clue 1 for cache 1',
+  'geocache {int} in their sequence has geocache location token {string}',
+  async function (this: TestWorld, cacheNum: number, tokenValue: string) {
+    // Alias for cache
+    if (!this.teamId) throw new Error('No teamId set');
+
+    const [seq] = await db
+      .select()
+      .from(teamSequences)
+      .where(
+        and(
+          eq(teamSequences.teamId, this.teamId),
+          eq(teamSequences.sequenceOrder, cacheNum - 1),
+        ),
+      )
+      .limit(1);
+
+    if (!seq) throw new Error(`No sequence entry at position ${cacheNum - 1}`);
+
+    await db
+      .update(caches)
+      .set({ cacheToken: tokenValue })
+      .where(eq(caches.id, seq.cacheId));
+  },
+);
+
+Given(
+  'team {string} has viewed only Clue 1 for geocache 1',
   async function (this: TestWorld, _teamName: string) {
     // No progress log entry needed — Clue 1 is always shown without a log entry
   },
 );
 
 Given(
+  'team {string} has viewed only Clue 1 for cache 1',
+  async function (this: TestWorld, _teamName: string) {
+    // Alias for geocache - same implementation
+    // No progress log entry needed — Clue 1 is always shown without a log entry
+  },
+);
+
+Given(
   'a user is on the confirmation page for cache {int}',
+  async function (this: TestWorld, cacheNum: number) {
+    // Alias for geocache
+    if (!this.teamId) throw new Error('No teamId set');
+    const token = await getCacheTokenForTeamPosition(this.teamId, cacheNum - 1);
+    if (!token) throw new Error(`No cache token at position ${cacheNum - 1}`);
+    this.currentCacheToken = token;
+    this.response = await fetch(`${BASE_URL}/found/${token}`, { redirect: 'follow' });
+  },
+);
+
+Given(
+  'a user is on the confirmation page for geocache {int}',
   async function (this: TestWorld, cacheNum: number) {
     if (!this.teamId) throw new Error('No teamId set');
     const token = await getCacheTokenForTeamPosition(this.teamId, cacheNum - 1);
@@ -104,6 +150,26 @@ Given(
 Given(
   'team {string} has requested Clue 2 for cache 1',
   async function (this: TestWorld, teamName: string) {
+    // Alias for geocache
+    const [team] = await db.select().from(teams).where(eq(teams.displayName, teamName)).limit(1);
+    if (!team) throw new Error(`Team "${teamName}" not found`);
+
+    const cacheToken = await getCacheTokenForTeamPosition(team.id, 0);
+    if (!cacheToken) throw new Error('No cache at position 0');
+    const [cache] = await db.select().from(caches).where(eq(caches.cacheToken, cacheToken)).limit(1);
+    if (!cache) throw new Error('Cache not found');
+
+    await db.insert(progressLogs).values({
+      teamId: team.id,
+      cacheId: cache.id,
+      clue2RequestedTimestamp: new Date(),
+    });
+  },
+);
+
+Given(
+  'team {string} has requested Clue 2 for geocache 1',
+  async function (this: TestWorld, teamName: string) {
     const [team] = await db.select().from(teams).where(eq(teams.displayName, teamName)).limit(1);
     if (!team) throw new Error(`Team "${teamName}" not found`);
 
@@ -122,6 +188,27 @@ Given(
 
 Given(
   'team {string} has requested Clue 3 for cache 1',
+  async function (this: TestWorld, teamName: string) {
+    // Alias for geocache
+    const [team] = await db.select().from(teams).where(eq(teams.displayName, teamName)).limit(1);
+    if (!team) throw new Error(`Team "${teamName}" not found`);
+
+    const cacheToken = await getCacheTokenForTeamPosition(team.id, 0);
+    if (!cacheToken) throw new Error('No cache at position 0');
+    const [cache] = await db.select().from(caches).where(eq(caches.cacheToken, cacheToken)).limit(1);
+    if (!cache) throw new Error('Cache not found');
+
+    await db.insert(progressLogs).values({
+      teamId: team.id,
+      cacheId: cache.id,
+      clue2RequestedTimestamp: new Date(Date.now() - 60000),
+      clue3RequestedTimestamp: new Date(),
+    });
+  },
+);
+
+Given(
+  'team {string} has requested Clue 3 for geocache 1',
   async function (this: TestWorld, teamName: string) {
     const [team] = await db.select().from(teams).where(eq(teams.displayName, teamName)).limit(1);
     if (!team) throw new Error(`Team "${teamName}" not found`);
@@ -175,7 +262,7 @@ Given(
 );
 
 Given(
-  'team {string} is on their last cache in the sequence',
+  'team {string} is on their last geocache in the sequence',
   async function (this: TestWorld, teamName: string) {
     const [team] = await db.select().from(teams).where(eq(teams.displayName, teamName)).limit(1);
     if (!team) throw new Error(`Team "${teamName}" not found`);
@@ -253,10 +340,22 @@ Then(
 Then(
   'the found_at timestamp is recorded immediately in the progress log for cache {int}',
   async function (this: TestWorld, _cacheNum: number) {
+    // Alias for geocache
     if (!this.teamId) throw new Error('No teamId set');
     const log = await getProgressLogForTeamCache(this.teamId, _cacheNum);
     if (!log?.foundTimestamp) {
       throw new Error(`found_at timestamp not set in progress log for cache ${_cacheNum}`);
+    }
+  },
+);
+
+Then(
+  'the found_at timestamp is recorded immediately in the progress log for geocache {int}',
+  async function (this: TestWorld, _cacheNum: number) {
+    if (!this.teamId) throw new Error('No teamId set');
+    const log = await getProgressLogForTeamCache(this.teamId, _cacheNum);
+    if (!log?.foundTimestamp) {
+      throw new Error(`found_at timestamp not set in progress log for geocache ${_cacheNum}`);
     }
   },
 );
@@ -274,9 +373,22 @@ Then(
 Then(
   '{int} points are recorded for cache {int} in the progress log',
   async function (this: TestWorld, expectedPoints: number, cacheNum: number) {
+    // Alias for geocache
     if (!this.teamId) throw new Error('No teamId set');
     const log = await getProgressLogForTeamCache(this.teamId, cacheNum);
     if (!log) throw new Error(`No progress log found for cache ${cacheNum}`);
+    if (log.points !== expectedPoints) {
+      throw new Error(`Expected ${expectedPoints} points but found ${log.points}`);
+    }
+  },
+);
+
+Then(
+  '{int} points are recorded for geocache {int} in the progress log',
+  async function (this: TestWorld, expectedPoints: number, cacheNum: number) {
+    if (!this.teamId) throw new Error('No teamId set');
+    const log = await getProgressLogForTeamCache(this.teamId, cacheNum);
+    if (!log) throw new Error(`No progress log found for geocache ${cacheNum}`);
     if (log.points !== expectedPoints) {
       throw new Error(`Expected ${expectedPoints} points but found ${log.points}`);
     }
@@ -286,6 +398,7 @@ Then(
 Then(
   '{int} point is recorded for cache {int} in the progress log',
   async function (this: TestWorld, expectedPoints: number, cacheNum: number) {
+    // Alias for geocache
     if (!this.teamId) throw new Error('No teamId set');
     const log = await getProgressLogForTeamCache(this.teamId, cacheNum);
     if (!log) throw new Error(`No progress log found for cache ${cacheNum}`);
@@ -296,7 +409,35 @@ Then(
 );
 
 Then(
+  '{int} point is recorded for geocache {int} in the progress log',
+  async function (this: TestWorld, expectedPoints: number, cacheNum: number) {
+    if (!this.teamId) throw new Error('No teamId set');
+    const log = await getProgressLogForTeamCache(this.teamId, cacheNum);
+    if (!log) throw new Error(`No progress log found for geocache ${cacheNum}`);
+    if (log.points !== expectedPoints) {
+      throw new Error(`Expected ${expectedPoints} points but found ${log.points}`);
+    }
+  },
+);
+
+Then(
   'the team\'s current cache index advances to cache {int}',
+  async function (this: TestWorld, expectedCacheNum: number) {
+    // Alias for geocache
+    if (!this.teamId) throw new Error('No teamId set');
+    const team = await getTeamById(this.teamId);
+    if (!team) throw new Error('Team not found');
+    const expectedIndex = expectedCacheNum - 1;
+    if (team.currentCacheIndex !== expectedIndex) {
+      throw new Error(
+        `Expected currentCacheIndex ${expectedIndex} but got ${team.currentCacheIndex}`,
+      );
+    }
+  },
+);
+
+Then(
+  'the team\'s current geocache index advances to geocache {int}',
   async function (this: TestWorld, expectedCacheNum: number) {
     if (!this.teamId) throw new Error('No teamId set');
     const team = await getTeamById(this.teamId);
@@ -313,10 +454,37 @@ Then(
 Then(
   'they are redirected to the clue page showing Clue 1 for cache {int}',
   async function (this: TestWorld, _cacheNum: number) {
+    // Alias for geocache
     if (!this.teamId) throw new Error('No teamId set');
     const body = await this.getBody();
     if (!body.toLowerCase().includes('clue 1')) {
       throw new Error(`Expected Clue 1 on clue page. Got: ${body.substring(0, 400)}`);
+    }
+  },
+);
+
+Then(
+  'they are redirected to the clue page showing Clue 1 for geocache {int}',
+  async function (this: TestWorld, _cacheNum: number) {
+    if (!this.teamId) throw new Error('No teamId set');
+    const body = await this.getBody();
+    if (!body.toLowerCase().includes('clue 1')) {
+      throw new Error(`Expected Clue 1 on clue page. Got: ${body.substring(0, 400)}`);
+    }
+  },
+);
+
+Then(
+  '{int} points are recorded for the last geocache',
+  async function (this: TestWorld, expectedPoints: number) {
+    if (!this.teamId) throw new Error('No teamId set');
+    const team = await getTeamById(this.teamId);
+    if (!team) throw new Error('Team not found');
+    // Use team.currentCacheIndex + 1 to convert to 1-based number for getProgressLogForTeamCache
+    const log = await getProgressLogForTeamCache(this.teamId, team.currentCacheIndex + 1);
+    if (!log) throw new Error('No progress log found for last geocache');
+    if (log.points !== expectedPoints) {
+      throw new Error(`Expected ${expectedPoints} points but found ${log.points}`);
     }
   },
 );

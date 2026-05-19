@@ -66,7 +66,7 @@ async function createFreshTeam(teamName: string, cacheIndex = 0) {
 // ── Given steps ──────────────────────────────────────────────────────────────
 
 Given(
-  'team {string} has already requested Clue {int} for cache {int}',
+  'team {string} has already requested Clue {int} for geocache {int}',
   async function (this: TestWorld, teamName: string, clueNum: number, cacheNum: number) {
     const team = await getTeamByName(teamName);
     if (!team) throw new Error(`Team "${teamName}" not found`);
@@ -114,7 +114,7 @@ Given(
 );
 
 Given(
-  'team {string} has already requested Clue 3 for the last cache',
+  'team {string} has already requested Clue 3 for the last geocache',
   async function (this: TestWorld, teamName: string) {
     const team = await getTeamByName(teamName);
     if (!team) throw new Error(`Team "${teamName}" not found`);
@@ -145,7 +145,7 @@ Given(
 );
 
 Given(
-  'a user has clicked "Cannot find cache" and the confirmation prompt is showing',
+  'a user has clicked "Cannot find geocache" and the confirmation prompt is showing',
   async function (this: TestWorld) {
     if (!this.teamId) throw new Error('No teamId set');
     this.response = await fetch(`${BASE_URL}/skip/${this.teamId}`, { redirect: 'follow' });
@@ -153,7 +153,7 @@ Given(
 );
 
 Given(
-  'a new team {string} is on cache {int} and has only requested Clue {int}',
+  'a new team {string} is on geocache {int} and has only requested Clue {int}',
   async function (this: TestWorld, teamName: string, _cacheNum: number, _clueNum: number) {
     const team = await createFreshTeam(teamName, _cacheNum - 1);
     this.teamId = team.id;
@@ -162,7 +162,7 @@ Given(
 );
 
 Given(
-  'a new team {string} is on cache {int} and has requested Clue {int} but not Clue {int}',
+  'a new team {string} is on geocache {int} and has requested Clue {int} but not Clue {int}',
   async function (
     this: TestWorld,
     teamName: string,
@@ -208,7 +208,7 @@ Then(
 );
 
 Then(
-  'they remain on the clue page for cache 1',
+  'they remain on the clue page for geocache 1',
   async function (this: TestWorld) {
     const body = await this.getBody();
     if (!body.toLowerCase().includes('clue 1')) {
@@ -218,7 +218,7 @@ Then(
 );
 
 Then(
-  'the progress log for cache 1 is unchanged',
+  'the progress log for geocache 1 is unchanged',
   async function (this: TestWorld) {
     if (!this.teamId) throw new Error('No teamId set');
     const cache = await getCacheAtPosition(this.teamId, 0);
@@ -240,7 +240,7 @@ Then(
 );
 
 Then(
-  'the skipped status is set to true for cache 1',
+  'the skipped status is set to true for geocache 1',
   async function (this: TestWorld) {
     if (!this.teamId) throw new Error('No teamId set');
     const cache = await getCacheAtPosition(this.teamId, 0);

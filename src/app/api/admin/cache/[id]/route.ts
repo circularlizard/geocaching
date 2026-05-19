@@ -39,7 +39,7 @@ export async function DELETE(
 
     if (assigned) {
       return NextResponse.json(
-        { error: 'Cannot delete a cache that is assigned to the active game. Unassign it first.' },
+        { error: 'Cannot delete a geocache that is assigned to the active game. Unassign it first.' },
         { status: 409 },
       );
     }
@@ -47,4 +47,34 @@ export async function DELETE(
 
   await db.delete(caches).where(eq(caches.id, cacheId));
   return NextResponse.json({ ok: true });
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } },
+) {
+  if (!isAuthed(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const cacheId = parseInt(params.id, 10);
+
+  const body = await request.json();
+  const { name } = body;
+
+  if (!name || typeof name !== 'string' || name.trim().length === 0) {
+    return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+  }
+
+  const [updated] = await db
+    .update(caches)
+    .set({ name: name.trim() })
+    .where(eq(caches.id, cacheId))
+    .returning();
+
+  if (!updated) {
+    return NextResponse.json({ error: 'Geocache not found' }, { status: 404 });
+  }
+
+  return NextResponse.json({ cache: updated });
 }
