@@ -38,6 +38,13 @@ export default async function AdminCacheDetailPage({ params }: { params: { id: s
     <main className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-3xl mx-auto space-y-6">
 
+        {/* Breadcrumb */}
+        <nav className="text-sm text-gray-500" aria-label="Breadcrumb">
+          <a href="/admin/caches" className="hover:text-gray-700 hover:underline">Caches</a>
+          <span className="mx-2">/</span>
+          <span className="text-gray-900 font-medium">{cache.name}</span>
+        </nav>
+
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{cache.name}</h1>
