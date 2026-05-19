@@ -39,20 +39,15 @@ export default async function AdminCacheDetailPage({ params }: { params: { id: s
       <div className="max-w-3xl mx-auto space-y-6">
 
         {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">{cache.name}</h1>
-            {activeGame && (
-              <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${
-                inActiveGame ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
-              }`}>
-                {inActiveGame ? `In game: ${activeGame.name}` : 'Not in active game'}
-              </span>
-            )}
-          </div>
-          <a href="/admin/caches" className="text-blue-600 hover:underline text-sm mt-1">
-            ← Manage Caches
-          </a>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{cache.name}</h1>
+          {activeGame && (
+            <span className={`mt-1 inline-block text-xs px-2 py-0.5 rounded-full font-medium ${
+              inActiveGame ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'
+            }`}>
+              {inActiveGame ? `In game: ${activeGame.name}` : 'Not in active game'}
+            </span>
+          )}
         </div>
 
         {/* QR code + identity */}

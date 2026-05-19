@@ -1,9 +1,10 @@
 import { requireAdminAuth } from '@/lib/admin-auth';
 import { db } from '@/lib/db';
-import { games } from '@/lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { games, caches, gameCaches } from '@/lib/db/schema';
+import { eq, desc, asc } from 'drizzle-orm';
 import CreateGameForm from './CreateGameForm';
 import EditEndTimeForm from './EditEndTimeForm';
+import AssignCachesForm from '../caches/AssignCachesForm';
 
 export const metadata = { title: 'Game Setup' };
 
@@ -18,34 +19,56 @@ export default async function AdminSetupPage() {
   const allGames = await db.select().from(games).orderBy(desc(games.id));
   const activeGame = allGames.find((g) => g.isActive);
 
+  const allCaches = await db.select().from(caches).orderBy(asc(caches.name));
+  const assignedIds = activeGame
+    ? (await db.select().from(gameCaches).where(eq(gameCaches.gameId, activeGame.id))).map(
+        (gc) => gc.cacheId,
+      )
+    : [];
+  const assignedSet = new Set(assignedIds);
+  const cacheItems = allCaches.map((c) => ({
+    id: c.id,
+    name: c.name,
+    assigned: assignedSet.has(c.id),
+  }));
+
   return (
     <main className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-3xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Game Setup</h1>
-          <a href="/admin/dashboard" className="text-blue-600 hover:underline text-sm">
-            ← Dashboard
-          </a>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-900">Game Setup</h1>
 
         {activeGame ? (
-          <section className="bg-white rounded-xl shadow p-6 space-y-4">
-            <h2 className="text-xl font-semibold text-gray-800">Active Game</h2>
-            <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
-              <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Name</p>
-                <p className="font-medium">{activeGame.name}</p>
+          <>
+            <section className="bg-white rounded-xl shadow p-6 space-y-4">
+              <h2 className="text-xl font-semibold text-gray-800">Active Game</h2>
+              <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Name</p>
+                  <p className="font-medium">{activeGame.name}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Caches</p>
+                  <p className="font-medium">{activeGame.cacheCount}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Caches</p>
-                <p className="font-medium">{activeGame.cacheCount}</p>
-              </div>
-            </div>
-            <EditEndTimeForm
-              gameId={activeGame.id}
-              currentEndTime={toDatetimeLocal(activeGame.gameEndTime)}
-            />
-          </section>
+              <EditEndTimeForm
+                gameId={activeGame.id}
+                currentEndTime={toDatetimeLocal(activeGame.gameEndTime)}
+              />
+            </section>
+
+            {allCaches.length > 0 && (
+              <section className="bg-white rounded-xl shadow p-6 space-y-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">Caches in Game</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Select which caches are active for <strong>{activeGame.name}</strong>.
+                  </p>
+                </div>
+                <AssignCachesForm gameId={activeGame.id} caches={cacheItems} />
+              </section>
+            )}
+          </>
         ) : (
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-yellow-800 text-sm">
             No active game. Create one below.
@@ -91,14 +114,6 @@ export default async function AdminSetupPage() {
           </section>
         )}
 
-        <div className="flex gap-4">
-          <a
-            href="/admin/caches"
-            className="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 text-sm"
-          >
-            Manage Caches →
-          </a>
-        </div>
       </div>
     </main>
   );

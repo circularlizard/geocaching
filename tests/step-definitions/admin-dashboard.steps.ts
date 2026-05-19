@@ -332,6 +332,22 @@ When('the admin dashboard is viewed', async function (this: TestWorld) {
 // ── Then steps ────────────────────────────────────────────────────────────────
 
 Then(
+  'they see the admin navigation bar with links to all sections',
+  async function (this: TestWorld) {
+    const body = await this.getBody();
+    if (!body.includes('aria-label="Admin navigation"')) {
+      throw new Error('Admin navigation bar not found in page HTML');
+    }
+    const sections = ['Dashboard', 'Game Setup', 'Caches', 'Team QRs'];
+    for (const section of sections) {
+      if (!body.includes(section)) {
+        throw new Error(`Navigation link "${section}" not found in admin nav`);
+      }
+    }
+  },
+);
+
+Then(
   'they see {string} listed on the dashboard',
   async function (this: TestWorld, teamName: string) {
     const body = await this.getBody();

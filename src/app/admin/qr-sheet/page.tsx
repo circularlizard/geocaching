@@ -61,9 +61,6 @@ export default async function AdminQrSheetPage() {
           <p className="text-gray-400">No registration tokens found.</p>
         )}
 
-        <a href="/admin/dashboard" className="text-blue-600 hover:underline text-sm print:hidden">
-          ← Back to Dashboard
-        </a>
       </div>
     </main>
   );

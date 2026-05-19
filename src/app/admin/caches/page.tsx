@@ -3,8 +3,9 @@ import { db } from '@/lib/db';
 import { caches, games, gameCaches } from '@/lib/db/schema';
 import { eq, asc } from 'drizzle-orm';
 import CreateCacheForm from './CreateCacheForm';
-import AssignCachesForm from './AssignCachesForm';
 import DeleteCacheButton from './DeleteCacheButton';
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
 export const metadata = { title: 'Manage Caches' };
 
@@ -31,6 +32,7 @@ export default async function AdminCachesPage() {
     id: c.id,
     name: c.name,
     cacheToken: c.cacheToken,
+    scanUrl: `${APP_URL}/scan?id=${c.cacheToken}`,
     assigned: assignedSet.has(c.id),
   }));
 
@@ -39,17 +41,12 @@ export default async function AdminCachesPage() {
       <div className="max-w-3xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Manage Caches</h1>
-          <div className="flex gap-3 items-center">
-            <a
-              href="/admin/cache-qr-sheet"
-              className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-            >
-              Cache QR Codes
-            </a>
-            <a href="/admin/setup" className="text-blue-600 hover:underline text-sm">
-              ← Game Setup
-            </a>
-          </div>
+          <a
+            href="/admin/cache-qr-sheet"
+            className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+          >
+            Cache QR Codes
+          </a>
         </div>
 
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
@@ -66,9 +63,16 @@ export default async function AdminCachesPage() {
             <div className="divide-y">
               {cacheItems.map((c) => (
                 <div key={c.id} className="py-3 flex items-center justify-between">
-                  <div>
+                  <div className="min-w-0">
                     <p className="font-medium text-gray-900">{c.name}</p>
-                    <p className="text-xs text-gray-400 font-mono">{c.cacheToken}</p>
+                    <a
+                      href={c.scanUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-gray-400 font-mono hover:text-gray-600 hover:underline break-all"
+                    >
+                      {c.scanUrl}
+                    </a>
                   </div>
                   <div className="flex items-center gap-3">
                     {activeGame && (
@@ -96,27 +100,6 @@ export default async function AdminCachesPage() {
           )}
         </section>
 
-        {activeGame && allCaches.length > 0 && (
-          <section className="bg-white rounded-xl shadow p-6 space-y-4">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-800">Assign Caches to Game</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Active game: <strong>{activeGame.name}</strong>
-              </p>
-            </div>
-            <AssignCachesForm gameId={activeGame.id} caches={cacheItems} />
-          </section>
-        )}
-
-        {!activeGame && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-yellow-800 text-sm">
-            No active game.{' '}
-            <a href="/admin/setup" className="underline">
-              Create one in Game Setup
-            </a>{' '}
-            to assign caches.
-          </div>
-        )}
       </div>
     </main>
   );

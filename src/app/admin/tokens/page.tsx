@@ -6,7 +6,7 @@ import QRCode from 'qrcode';
 import PrintButton from '@/components/PrintButton';
 import { AddTokenButton, DeleteTokenButton } from './TokenActions';
 
-export const metadata = { title: 'Registration Tokens' };
+export const metadata = { title: 'Team QRs' };
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
@@ -46,7 +46,7 @@ export default async function AdminTokensPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between print:hidden">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Registration Tokens</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Team QRs</h1>
             {activeGame && (
               <p className="text-sm text-gray-500 mt-1">
                 Game: <strong>{activeGame.name}</strong>
@@ -56,9 +56,6 @@ export default async function AdminTokensPage() {
           <div className="flex gap-3 items-center flex-wrap">
             <AddTokenButton />
             <PrintButton />
-            <a href="/admin/dashboard" className="text-blue-600 hover:underline text-sm">
-              ← Dashboard
-            </a>
           </div>
         </div>
 
@@ -87,7 +84,14 @@ export default async function AdminTokensPage() {
                 dangerouslySetInnerHTML={{ __html: svg }}
               />
               <p className="font-mono text-xs text-gray-700 break-all">{token.token}</p>
-              <p className="text-xs text-gray-400 break-all font-mono">{url}</p>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-gray-400 break-all font-mono hover:text-gray-600 hover:underline"
+              >
+                {url}
+              </a>
             </div>
           ))}
         </div>

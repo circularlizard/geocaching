@@ -75,3 +75,7 @@ Feature: Admin Monitoring Dashboard
     Given a user is not authenticated as admin
     When they visit "/admin/dashboard"
     Then they are redirected to the admin login page
+
+  Scenario: Admin navigation bar is present on all authenticated admin pages
+    When the admin visits "/admin/dashboard"
+    Then they see the admin navigation bar with links to all sections
