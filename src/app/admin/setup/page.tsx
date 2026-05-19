@@ -5,6 +5,8 @@ import { eq, desc } from 'drizzle-orm';
 import CreateGameForm from './CreateGameForm';
 import EditEndTimeForm from './EditEndTimeForm';
 
+export const metadata = { title: 'Game Setup' };
+
 function toDatetimeLocal(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;

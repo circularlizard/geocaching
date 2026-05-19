@@ -3,12 +3,24 @@ import { db } from '@/lib/db';
 import { teams, caches, teamSequences, progressLogs, games } from '@/lib/db/schema';
 import { eq, and, sum } from 'drizzle-orm';
 import SetTeamCookie from '@/components/SetTeamCookie';
+import RequestClueButton from './RequestClueButton';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: { teamId: string } }): Promise<Metadata> {
+  const teamId = parseInt(params.teamId, 10);
+  if (isNaN(teamId)) return { title: 'Cache Hunt' };
+  const [team] = await db.select({ displayName: teams.displayName }).from(teams).where(eq(teams.id, teamId)).limit(1);
+  return { title: team ? `Cache Hunt — ${team.displayName}` : 'Cache Hunt' };
+}
 
 export default async function CluePage({
   params,
+  searchParams,
 }: {
   params: { teamId: string };
+  searchParams: { earned?: string };
 }) {
+  const justEarned = searchParams.earned ? parseInt(searchParams.earned, 10) : null;
   const teamId = parseInt(params.teamId, 10);
   if (isNaN(teamId)) notFound();
 
@@ -92,8 +104,11 @@ export default async function CluePage({
   const score = Number(totalPoints ?? 0);
   const clue2Visible = !!progressLog?.clue2RequestedTimestamp;
   const clue3Visible = !!progressLog?.clue3RequestedTimestamp;
-  const showRequestButton = !clue3Visible;
   const showCannotFind = clue3Visible;
+
+  const potentialPoints = clue3Visible ? 1 : clue2Visible ? 3 : 5;
+  const nextClueNum: 2 | 3 = clue2Visible ? 3 : 2;
+  const afterRequestPoints = nextClueNum === 2 ? 3 : 1;
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-6 bg-white">
@@ -135,20 +150,29 @@ export default async function CluePage({
           </section>
         )}
 
+        {justEarned !== null && (
+          <div className="bg-green-50 border border-green-300 rounded-lg px-4 py-3 text-sm text-green-800 text-center font-medium">
+            🏆 You just earned <strong>{justEarned} point{justEarned !== 1 ? 's' : ''}</strong> for that cache!
+            Your total score is now <strong>{score}</strong>.
+          </div>
+        )}
+
+        <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-900 text-center">
+          Find this cache now to earn <strong>{potentialPoints} point{potentialPoints !== 1 ? 's' : ''}</strong>.
+        </div>
+
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800 text-center">
           📷 When you find the cache, <strong>scan the QR code</strong> inside the box to record your find.
         </div>
 
         <div className="space-y-3 pt-2">
-          {showRequestButton && (
-            <form action={`/api/clue/${team.id}/request-next`} method="post">
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white font-bold py-4 rounded-lg text-lg hover:bg-blue-700 transition-colors"
-              >
-                Request next clue
-              </button>
-            </form>
+          {!clue3Visible && (
+            <RequestClueButton
+              teamId={team.id}
+              currentPoints={potentialPoints}
+              afterPoints={afterRequestPoints}
+              nextClueNum={nextClueNum}
+            />
           )}
 
           {showCannotFind && (

@@ -6,6 +6,14 @@ import { notFound } from 'next/navigation';
 import QRCode from 'qrcode';
 import EditClueForm from './EditClueForm';
 import UploadImageForm from './UploadImageForm';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const id = parseInt(params.id, 10);
+  if (isNaN(id)) return { title: 'Cache Details' };
+  const [cache] = await db.select({ name: caches.name }).from(caches).where(eq(caches.id, id)).limit(1);
+  return { title: cache ? cache.name : 'Cache Details' };
+}
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 

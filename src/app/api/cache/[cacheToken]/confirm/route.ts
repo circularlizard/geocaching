@@ -116,7 +116,8 @@ export async function POST(
     );
   }
 
-  return NextResponse.redirect(new URL(`/clue/${teamId}`, request.url), {
-    status: 302,
-  });
+  return NextResponse.redirect(
+    new URL(`/clue/${teamId}?earned=${points}`, request.url),
+    { status: 302 },
+  );
 }

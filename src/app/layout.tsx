@@ -13,7 +13,10 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'QR Code Geocaching Tracker',
+  title: {
+    template: '%s — Bore Stane Geocache',
+    default: 'Bore Stane Geocache',
+  },
   description: 'A geocaching game with QR codes',
 }
 

@@ -4,6 +4,8 @@ import { teams, games, progressLogs, registrationTokens, teamSequences, caches }
 import { eq, sum, asc } from 'drizzle-orm';
 import AutoRefresh from '@/components/AutoRefresh';
 
+export const metadata = { title: 'Dashboard' };
+
 export default async function AdminDashboardPage() {
   requireAdminAuth();
 
