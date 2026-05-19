@@ -28,8 +28,8 @@ The exit condition for the full implementation is: **all Gherkin scenarios pass,
 | 5 — Skip Cache Flow | ✅ Complete | `389d994` |
 | 6 — Game Completion | ✅ Complete | `4d0098c` |
 | 7 — Admin Setup | ✅ Complete | `e9bda7a` |
-| 8 — Admin Dashboard | ⬜ Not Started | — |
-| 9 — UI Polish & NFR | ⬜ Not Started | — |
+| 8 — Admin Dashboard | ✅ Complete | `b6bbc3a` |
+| 9 — UI Polish & NFR | ✅ Complete | pending commit |
 
 ---
 
@@ -170,6 +170,18 @@ The exit condition for the full implementation is: **all Gherkin scenarios pass,
 - Accessibility: sufficient colour contrast, legible font sizes.
 
 **No new Gherkin scenarios** — this phase is verified by Playwright visual/performance checks and manual review.
+
+**Implementation notes:**
+- `src/app/layout.tsx` — added `viewport` export for mobile (device-width, no user-scalable), `antialiased` body class.
+- `src/app/globals.css` — base mobile styles: `text-size-adjust`, min tap target sizing, legible font sizes.
+- `src/app/page.tsx` — replaced boilerplate with a clean mobile-friendly landing page.
+- `src/app/error.tsx` — global error boundary (client component).
+- `src/app/not-found.tsx` — global 404 page.
+- `src/app/clue/[teamId]/loading.tsx`, `found/[cacheToken]/loading.tsx`, `skip/[teamId]/loading.tsx`, `completion/[teamId]/loading.tsx` — Tailwind pulse skeleton loaders.
+- `src/app/scan/route.ts` — **converted from page to Route Handler** to produce proper HTTP 307 redirects (Next.js App Router streaming encodes `redirect()` as RSC payload in dev mode; Route Handlers always return real HTTP responses).
+- `src/app/register/route.ts` — same fix; renders form HTML inline for the non-redirect case.
+- `playwright.config.ts` — added `mobile-chrome` project (Pixel 5 device).
+- `tests/e2e/mobile-nfr.spec.ts` — Playwright checks: mobile viewport, page load time, minimum touch-target sizes.
 
 ---
 
