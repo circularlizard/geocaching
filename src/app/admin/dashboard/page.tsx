@@ -169,30 +169,6 @@ export default async function AdminDashboardPage() {
           >
             Recall All Teams
           </a>
-          <a
-            href="/admin/setup"
-            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-          >
-            Game Setup
-          </a>
-          <a
-            href="/admin/caches"
-            className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
-          >
-            Manage Caches
-          </a>
-          <a
-            href="/admin/tokens"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Registration Tokens & QR
-          </a>
-          <a
-            href="/admin/cache-qr-sheet"
-            className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800"
-          >
-            Cache QR Codes
-          </a>
         </div>
       </div>
     </main>

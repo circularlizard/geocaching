@@ -49,6 +49,7 @@ Administrators require a web interface to manage the game setup:
 * Expected scale: approximately 8 teams per game. This is not a hard limit; the system should not impose a maximum number of teams.
 * **Registration Token Management:** Admins can create new Registration Tokens at any time. Admins can delete a Registration Token provided it has not been used (i.e. no team has registered with it) in the currently active game.
 * **Cache Deletion:** Admins can delete a cache record provided the cache is not currently assigned to the active game. If the cache is assigned to the active game it must first be unassigned before it can be deleted.
+* **Admin Navigation:** The admin interface must include a persistent navigation bar visible on all authenticated admin pages (Dashboard, Game Setup, Caches, Tokens, Cache QRs). The navigation must be mobile-friendly, collapsing to a hamburger menu on small screens. The navigation bar must not appear on the login page.
 
 ## 4.1 QR Code Management
 
