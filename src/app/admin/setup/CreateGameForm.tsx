@@ -3,11 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+function defaultEndTime() {
+  const d = new Date(Date.now() + 60 * 60 * 1000);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function CreateGameForm() {
   const router = useRouter();
   const [name, setName] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [cacheCount, setCacheCount] = useState('8');
+  const [endTime, setEndTime] = useState(defaultEndTime);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -19,7 +24,7 @@ export default function CreateGameForm() {
       const res = await fetch('/api/admin/game/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, endTime, cacheCount: Number(cacheCount) }),
+        body: JSON.stringify({ name, endTime }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -28,8 +33,7 @@ export default function CreateGameForm() {
       }
       router.refresh();
       setName('');
-      setEndTime('');
-      setCacheCount('8');
+      setEndTime(defaultEndTime());
     } catch {
       setError('Network error');
     } finally {
@@ -56,18 +60,6 @@ export default function CreateGameForm() {
           type="datetime-local"
           value={endTime}
           onChange={(e) => setEndTime(e.target.value)}
-          required
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Number of Caches</label>
-        <input
-          type="number"
-          min="1"
-          max="20"
-          value={cacheCount}
-          onChange={(e) => setCacheCount(e.target.value)}
           required
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
