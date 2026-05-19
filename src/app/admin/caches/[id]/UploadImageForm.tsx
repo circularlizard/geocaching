@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function UploadImageForm({ cacheId, currentImageUrl }: { cacheId: number; currentImageUrl: string | null }) {
-  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(currentImageUrl);
   const [loading, setLoading] = useState(false);
@@ -39,7 +37,6 @@ export default function UploadImageForm({ cacheId, currentImageUrl }: { cacheId:
       }
       setPreview(data.url);
       setSaved(true);
-      router.refresh();
     } catch {
       setError('Network error');
     } finally {
@@ -54,6 +51,10 @@ export default function UploadImageForm({ cacheId, currentImageUrl }: { cacheId:
           src={preview}
           alt="Clue 3 preview"
           className="max-w-sm rounded-lg border border-gray-200"
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+            setError('Stored image URL is not accessible. Re-upload to fix.');
+          }}
         />
       )}
       {!preview && (

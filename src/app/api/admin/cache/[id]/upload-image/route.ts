@@ -5,25 +5,23 @@ import { eq } from 'drizzle-orm';
 import { ADMIN_COOKIE_NAME, ADMIN_COOKIE_VALUE } from '@/lib/admin-auth';
 import { randomUUID } from 'crypto';
 import * as Minio from 'minio';
+import { writeFile, mkdir } from 'fs/promises';
+import path from 'path';
 
 function isAuthed(request: Request): boolean {
   const cookie = request.headers.get('cookie') ?? '';
   return cookie.includes(`${ADMIN_COOKIE_NAME}=${ADMIN_COOKIE_VALUE}`);
 }
 
-async function uploadToStorage(
+async function uploadToMinio(
   filename: string,
   buffer: Buffer,
   mimeType: string,
 ): Promise<string> {
-  const endpointRaw = process.env.MINIO_ENDPOINT;
-  const accessKey = process.env.MINIO_ACCESS_KEY;
-  const secretKey = process.env.MINIO_SECRET_KEY;
+  const endpointRaw = process.env.MINIO_ENDPOINT!;
+  const accessKey = process.env.MINIO_ACCESS_KEY!;
+  const secretKey = process.env.MINIO_SECRET_KEY!;
   const bucket = process.env.MINIO_BUCKET ?? 'geocache';
-
-  if (!endpointRaw || !accessKey || !secretKey) {
-    throw new Error('MinIO environment variables are not configured');
-  }
 
   const endpointUrl = new URL(endpointRaw);
   const client = new Minio.Client({
@@ -54,8 +52,34 @@ async function uploadToStorage(
   }
 
   await client.putObject(bucket, filename, buffer, buffer.length, { 'Content-Type': mimeType });
-
   return `${endpointRaw}/${bucket}/${filename}`;
+}
+
+async function uploadToLocalFs(filename: string, buffer: Buffer): Promise<string> {
+  const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+  await mkdir(uploadsDir, { recursive: true });
+  await writeFile(path.join(uploadsDir, filename), buffer);
+  return `/uploads/${filename}`;
+}
+
+async function uploadToStorage(
+  filename: string,
+  buffer: Buffer,
+  mimeType: string,
+): Promise<string> {
+  const endpointRaw = process.env.MINIO_ENDPOINT;
+  const accessKey = process.env.MINIO_ACCESS_KEY;
+  const secretKey = process.env.MINIO_SECRET_KEY;
+
+  if (endpointRaw && accessKey && secretKey) {
+    try {
+      return await uploadToMinio(filename, buffer, mimeType);
+    } catch (err) {
+      console.error('[upload] MinIO failed, falling back to local filesystem:', err);
+    }
+  }
+
+  return uploadToLocalFs(filename, buffer);
 }
 
 export async function POST(
