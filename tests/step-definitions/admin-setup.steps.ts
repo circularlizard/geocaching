@@ -299,12 +299,12 @@ When(
 );
 
 When(
-  'they create a game with name {string}, end time {string}, and cache count {int}',
-  async function (this: TestWorld, name: string, endTime: string, cacheCount: number) {
+  'they create a game with name {string} and end time {string}',
+  async function (this: TestWorld, name: string, endTime: string) {
     this.response = await fetch(`${BASE_URL}/api/admin/game/create`, {
       method: 'POST',
       headers: adminHeaders(this),
-      body: JSON.stringify({ name, endTime, cacheCount }),
+      body: JSON.stringify({ name, endTime }),
       redirect: 'follow',
     });
   },
@@ -406,7 +406,6 @@ When(
       body: JSON.stringify({
         name: 'New Game',
         endTime: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
-        cacheCount: 8,
       }),
       redirect: 'follow',
     });
@@ -565,6 +564,21 @@ Then(
     const res = await fetch(`${BASE_URL}/admin/dashboard`, { headers, redirect: 'manual' });
     if (res.status === 200) {
       throw new Error('Admin was granted access after wrong password');
+    }
+  },
+);
+
+Then(
+  'all existing caches are automatically assigned to the new game',
+  async function (this: TestWorld) {
+    const body = await this.getBody();
+    const parsed = JSON.parse(body);
+    const gameId = parsed.game?.id;
+    if (!gameId) throw new Error(`Expected game in response. Got: ${body.substring(0, 200)}`);
+    const allCachesInDb = await db.select().from(caches).orderBy(asc(caches.id));
+    const assigned = await db.select().from(gameCaches).where(eq(gameCaches.gameId, gameId));
+    if (assigned.length !== allCachesInDb.length) {
+      throw new Error(`Expected ${allCachesInDb.length} caches assigned but got ${assigned.length}`);
     }
   },
 );

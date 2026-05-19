@@ -4,7 +4,7 @@ import { caches } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { ADMIN_COOKIE_NAME, ADMIN_COOKIE_VALUE } from '@/lib/admin-auth';
 import { randomUUID } from 'crypto';
-import * as Minio from 'minio';
+import { put } from '@vercel/blob';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
@@ -13,46 +13,16 @@ function isAuthed(request: Request): boolean {
   return cookie.includes(`${ADMIN_COOKIE_NAME}=${ADMIN_COOKIE_VALUE}`);
 }
 
-async function uploadToMinio(
+async function uploadToVercelBlob(
   filename: string,
   buffer: Buffer,
   mimeType: string,
 ): Promise<string> {
-  const endpointRaw = process.env.MINIO_ENDPOINT!;
-  const accessKey = process.env.MINIO_ACCESS_KEY!;
-  const secretKey = process.env.MINIO_SECRET_KEY!;
-  const bucket = process.env.MINIO_BUCKET ?? 'geocache';
-
-  const endpointUrl = new URL(endpointRaw);
-  const client = new Minio.Client({
-    endPoint: endpointUrl.hostname,
-    port: endpointUrl.port ? parseInt(endpointUrl.port, 10) : undefined,
-    useSSL: endpointUrl.protocol === 'https:',
-    accessKey,
-    secretKey,
+  const blob = await put(filename, buffer, {
+    access: 'public',
+    contentType: mimeType,
   });
-
-  const exists = await client.bucketExists(bucket);
-  if (!exists) {
-    await client.makeBucket(bucket);
-    await client.setBucketPolicy(
-      bucket,
-      JSON.stringify({
-        Version: '2012-10-17',
-        Statement: [
-          {
-            Effect: 'Allow',
-            Principal: { AWS: ['*'] },
-            Action: ['s3:GetObject'],
-            Resource: [`arn:aws:s3:::${bucket}/*`],
-          },
-        ],
-      }),
-    );
-  }
-
-  await client.putObject(bucket, filename, buffer, buffer.length, { 'Content-Type': mimeType });
-  return `${endpointRaw}/${bucket}/${filename}`;
+  return blob.url;
 }
 
 async function uploadToLocalFs(filename: string, buffer: Buffer): Promise<string> {
@@ -67,18 +37,9 @@ async function uploadToStorage(
   buffer: Buffer,
   mimeType: string,
 ): Promise<string> {
-  const endpointRaw = process.env.MINIO_ENDPOINT;
-  const accessKey = process.env.MINIO_ACCESS_KEY;
-  const secretKey = process.env.MINIO_SECRET_KEY;
-
-  if (endpointRaw && accessKey && secretKey) {
-    try {
-      return await uploadToMinio(filename, buffer, mimeType);
-    } catch (err) {
-      console.error('[upload] MinIO failed, falling back to local filesystem:', err);
-    }
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    return uploadToVercelBlob(filename, buffer, mimeType);
   }
-
   return uploadToLocalFs(filename, buffer);
 }
 
