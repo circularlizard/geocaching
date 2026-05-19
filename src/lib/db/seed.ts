@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 config({ path: '.env.local' });
 
 import { db } from './index';
-import { games, registrationTokens, caches, teams, teamSequences } from './schema';
+import { games, registrationTokens, caches, teams, teamSequences, progressLogs, gameCaches } from './schema';
 import { sql } from 'drizzle-orm';
 
 // Helper function to generate random tokens
@@ -26,8 +26,10 @@ async function seed() {
   try {
     // Clear existing data
     console.log('🧹 Clearing existing data...');
+    await db.delete(progressLogs);
     await db.delete(teamSequences);
     await db.delete(teams);
+    await db.delete(gameCaches);
     await db.delete(caches);
     await db.delete(registrationTokens);
     await db.delete(games);
