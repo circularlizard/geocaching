@@ -49,13 +49,12 @@ export default async function AdminCachesPage() {
           </a>
         </div>
 
+        <CreateCacheForm />
+
         <section className="bg-white rounded-xl shadow p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-gray-800">
-              All Caches ({allCaches.length})
-            </h2>
-            <CreateCacheForm />
-          </div>
+          <h2 className="text-xl font-semibold text-gray-800">
+            All Caches ({allCaches.length})
+          </h2>
 
           {allCaches.length === 0 ? (
             <p className="text-gray-400 text-sm">No caches yet. Create one above.</p>
