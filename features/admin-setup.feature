@@ -26,10 +26,11 @@ Feature: Admin Setup Interface
 
   Scenario: Admin can create a new game
     Given an admin is authenticated
-    When they create a game with name "Spring Hunt 2026", end time "2026-04-15T15:00:00Z", and cache count 8
+    When they create a game with name "Spring Hunt 2026" and end time "2026-04-15T15:00:00Z"
     Then a new game record is created in the database
     And the new game is marked as active
     And any previously active game is marked as inactive
+    And all existing caches are automatically assigned to the new game
 
   Scenario: Admin can edit the game end time
     Given an admin is authenticated
