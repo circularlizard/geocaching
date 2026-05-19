@@ -29,7 +29,7 @@ The exit condition for the full implementation is: **all Gherkin scenarios pass,
 | 6 — Game Completion | ✅ Complete | `4d0098c` |
 | 7 — Admin Setup | ✅ Complete | `e9bda7a` |
 | 8 — Admin Dashboard | ✅ Complete | `b6bbc3a` |
-| 9 — UI Polish & NFR | ✅ Complete | pending commit |
+| 9 — UI Polish & NFR | ✅ Complete | `9a9aefb` |
 
 ---
 
