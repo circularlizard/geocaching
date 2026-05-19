@@ -168,3 +168,5 @@ coverage/
 
 # Local development
 .local/
+.vercel
+.env*.local
