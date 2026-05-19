@@ -70,7 +70,7 @@ export default function AssignCachesForm({ gameId, caches }: { gameId: number; c
           disabled={loading || selected.size === 0}
           className="px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm"
         >
-          {loading ? 'Saving…' : `Save (${selected.size} caches)`}
+          {loading ? 'Saving…' : `Save (${selected.size} geocaches)`}
         </button>
         {saved && <span className="text-green-600 text-sm">Saved ✓</span>}
         {error && <span className="text-red-600 text-sm">{error}</span>}

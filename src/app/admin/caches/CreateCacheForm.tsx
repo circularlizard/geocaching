@@ -96,7 +96,7 @@ export default function CreateCacheForm() {
         onClick={() => setOpen(true)}
         className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-sm"
       >
-        + New Cache
+        + New Geocache
       </button>
     );
   }
@@ -104,7 +104,7 @@ export default function CreateCacheForm() {
   return (
     <form className="bg-white border border-gray-200 rounded-xl p-6 space-y-6 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-800 text-lg">Create New Cache</h3>
+        <h3 className="font-semibold text-gray-800 text-lg">Create New Geocache</h3>
         <button
           type="button"
           onClick={() => setOpen(false)}
@@ -118,14 +118,14 @@ export default function CreateCacheForm() {
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-2">
-            Cache Name / Location
+            Geocache Name / Location
           </label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            placeholder="e.g. Oak Tree Cache"
+            placeholder="e.g. Oak Tree Geocache"
             className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
@@ -219,7 +219,7 @@ export default function CreateCacheForm() {
           disabled={loading}
           className="px-5 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
-          {loading ? 'Creating…' : 'Create Cache'}
+          {loading ? 'Creating…' : 'Create Geocache'}
         </button>
         <button
           type="button"

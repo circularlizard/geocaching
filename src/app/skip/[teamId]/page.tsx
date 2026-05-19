@@ -6,9 +6,9 @@ import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { teamId: string } }): Promise<Metadata> {
   const teamId = parseInt(params.teamId, 10);
-  if (isNaN(teamId)) return { title: 'Skip Cache' };
+  if (isNaN(teamId)) return { title: 'Skip Geocache' };
   const [team] = await db.select({ displayName: teams.displayName }).from(teams).where(eq(teams.id, teamId)).limit(1);
-  return { title: team ? `Skip Cache — ${team.displayName}` : 'Skip Cache' };
+  return { title: team ? `Skip Geocache — ${team.displayName}` : 'Skip Geocache' };
 }
 
 export default async function SkipConfirmPage({
@@ -33,8 +33,8 @@ export default async function SkipConfirmPage({
         <div className="text-6xl">❓</div>
         <h1 className="text-2xl font-bold text-gray-900">Are you sure?</h1>
         <p className="text-gray-700">
-          If you cannot find the cache, you will score <strong>0 points</strong> for this one and
-          move on to the next cache.
+          If you cannot find the geocache, you will score <strong>0 points</strong> for this one and
+          move on to the next geocache.
         </p>
 
         <div className="flex gap-3 pt-2">

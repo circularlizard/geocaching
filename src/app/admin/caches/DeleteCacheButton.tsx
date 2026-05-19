@@ -9,7 +9,7 @@ export default function DeleteCacheButton({ cacheId }: { cacheId: number }) {
   const [error, setError] = useState('');
 
   async function handleDelete() {
-    if (!confirm('Delete this cache? This cannot be undone.')) return;
+    if (!confirm('Delete this geocache? This cannot be undone.')) return;
     setLoading(true);
     setError('');
     try {
@@ -33,7 +33,7 @@ export default function DeleteCacheButton({ cacheId }: { cacheId: number }) {
         onClick={handleDelete}
         disabled={loading}
         className="text-xs text-red-500 hover:text-red-700 disabled:opacity-50"
-        title="Delete cache"
+        title="Delete geocache"
       >
         {loading ? '…' : 'Delete'}
       </button>

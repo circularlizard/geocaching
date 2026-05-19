@@ -39,9 +39,9 @@ export default async function AdminCacheQrSheetPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between print:hidden">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Cache Location QR Codes</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Geocache Location QR Codes</h1>
             <p className="text-sm text-gray-500 mt-1">
-              All {cacheLinks.length} caches — QR codes are fixed per physical cache, game-independent.
+              All {cacheLinks.length} geocaches — QR codes are fixed per physical geocache, game-independent.
               {activeGame && <> Blue border = in current game (<strong>{activeGame.name}</strong>).</>}
             </p>
           </div>
@@ -52,7 +52,7 @@ export default async function AdminCacheQrSheetPage() {
 
         {cacheLinks.length === 0 && (
           <p className="text-gray-400">
-            No caches found.{' '}
+            No geocaches found.{' '}
             <a href="/admin/caches" className="text-blue-600 underline">Create one first.</a>
           </p>
         )}

@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 const NAV_ITEMS = [
   { href: '/admin/dashboard', label: 'Dashboard' },
   { href: '/admin/setup', label: 'Game Setup' },
-  { href: '/admin/caches', label: 'Caches' },
+  { href: '/admin/caches', label: 'Geocaches' },
   { href: '/admin/tokens', label: 'Team QRs' },
 ];
 

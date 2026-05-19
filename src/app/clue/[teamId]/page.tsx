@@ -4,13 +4,14 @@ import { teams, caches, teamSequences, progressLogs, games } from '@/lib/db/sche
 import { eq, and, sum } from 'drizzle-orm';
 import SetTeamCookie from '@/components/SetTeamCookie';
 import RequestClueButton from './RequestClueButton';
+import FoundItButton from './FoundItButton';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { teamId: string } }): Promise<Metadata> {
   const teamId = parseInt(params.teamId, 10);
   if (isNaN(teamId)) return { title: 'Cache Hunt' };
   const [team] = await db.select({ displayName: teams.displayName }).from(teams).where(eq(teams.id, teamId)).limit(1);
-  return { title: team ? `Cache Hunt — ${team.displayName}` : 'Cache Hunt' };
+  return { title: team ? `Geocache Hunt — ${team.displayName}` : 'Geocache Hunt' };
 }
 
 export default async function CluePage({
@@ -71,7 +72,7 @@ export default async function CluePage({
     return (
       <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-white">
         <div className="max-w-md w-full text-center space-y-4">
-          <h1 className="text-2xl font-bold text-gray-800">All caches complete!</h1>
+          <h1 className="text-2xl font-bold text-gray-800">All geocaches complete!</h1>
         </div>
       </main>
     );
@@ -124,45 +125,48 @@ export default async function CluePage({
           </span>
         </div>
 
-        <section className="space-y-2">
+        <section className="space-y-3">
           <h2 className="text-lg font-semibold text-blue-700 uppercase tracking-wide">Clue 1</h2>
           <p className="text-xl text-gray-800 leading-relaxed">{cache.clue1Text}</p>
+          <FoundItButton />
         </section>
 
         {clue2Visible && (
-          <section className="space-y-2">
+          <section className="space-y-3">
             <h2 className="text-lg font-semibold text-orange-600 uppercase tracking-wide">Clue 2</h2>
             <p className="text-xl text-gray-800 leading-relaxed">{cache.clue2Text}</p>
+            <FoundItButton />
           </section>
         )}
 
         {clue3Visible && (
-          <section className="space-y-2">
+          <section className="space-y-3">
             <h2 className="text-lg font-semibold text-red-600 uppercase tracking-wide">Clue 3</h2>
             <p className="text-xl text-gray-800 leading-relaxed">{cache.clue3Text}</p>
             {cache.clue3ImageUrl && (
               <img
                 src={cache.clue3ImageUrl}
-                alt="Cache location hint"
+                alt="Geocache location hint"
                 className="w-full rounded-lg border"
               />
             )}
+            <FoundItButton />
           </section>
         )}
 
         {justEarned !== null && (
           <div className="bg-green-50 border border-green-300 rounded-lg px-4 py-3 text-sm text-green-800 text-center font-medium">
-            🏆 You just earned <strong>{justEarned} point{justEarned !== 1 ? 's' : ''}</strong> for that cache!
+            🏆 You just earned <strong>{justEarned} point{justEarned !== 1 ? 's' : ''}</strong> for that geocache!
             Your total score is now <strong>{score}</strong>.
           </div>
         )}
 
         <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-900 text-center">
-          Find this cache now to earn <strong>{potentialPoints} point{potentialPoints !== 1 ? 's' : ''}</strong>.
+          Find this geocache now to earn <strong>{potentialPoints} point{potentialPoints !== 1 ? 's' : ''}</strong>.
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800 text-center">
-          📷 When you find the cache, <strong>scan the QR code</strong> inside the box to record your find.
+          📷 When you find the geocache, <strong>scan the QR code</strong> inside the box to record your find.
         </div>
 
         <div className="space-y-3 pt-2">
@@ -181,7 +185,7 @@ export default async function CluePage({
                 type="submit"
                 className="w-full bg-red-100 text-red-700 font-semibold py-3 rounded-lg text-lg hover:bg-red-200 transition-colors border border-red-300"
               >
-                Cannot find cache
+                Cannot find geocache
               </button>
             </form>
           )}

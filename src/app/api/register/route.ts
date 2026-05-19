@@ -70,35 +70,37 @@ function shuffleArray<T>(arr: T[]): T[] {
 export async function POST(request: Request) {
   let token: string | undefined;
   let teamName: string | undefined;
-  let membersRaw: string | undefined;
+  let memberList: string[] = [];
 
   const contentType = request.headers.get('content-type') ?? '';
   if (contentType.includes('application/json')) {
     const body = await request.json();
     token = body.token;
     teamName = body.teamName;
-    membersRaw = body.members;
+    // Support both array and comma-separated string for JSON API
+    if (Array.isArray(body.members)) {
+      memberList = body.members.filter((m: string) => typeof m === 'string' && m.trim());
+    } else if (typeof body.members === 'string') {
+      memberList = body.members.split(',').map((m: string) => m.trim()).filter(Boolean);
+    }
   } else {
     const form = await request.formData();
     token = form.get('token') as string | undefined;
     teamName = form.get('teamName') as string | undefined;
-    membersRaw = form.get('members') as string | undefined;
+    // Get all member[] values from form
+    const memberEntries = form.getAll('member[]');
+    memberList = memberEntries.map((m) => String(m).trim()).filter(Boolean);
   }
 
   const isFormPost = !contentType.includes('application/json');
   const safeToken = token ?? '';
   const safeTeamName = teamName ?? '';
-  const safeMembers = membersRaw ?? '';
+  const safeMembers = memberList.join(', ');
 
   if (!teamName?.trim()) {
     if (isFormPost) return htmlError(safeToken, safeTeamName, safeMembers, 'Team name is required.');
     return NextResponse.json({ error: 'Team name is required' }, { status: 422 });
   }
-
-  const memberList = safeMembers
-    .split(',')
-    .map((m) => m.trim())
-    .filter(Boolean);
 
   if (memberList.length < 4) {
     if (isFormPost) return htmlError(safeToken, safeTeamName, safeMembers, `Please enter at least 4 team members — you entered ${memberList.length}.`);

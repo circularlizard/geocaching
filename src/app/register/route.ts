@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { registrationTokens, teams, games } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
-function formHtml(token: string) {
+function formHtml(token: string, errorMessage = '') {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,33 +18,87 @@ function formHtml(token: string) {
     .subtitle{color:#6b7280;text-align:center;margin-bottom:1.5rem;font-size:1rem}
     label{display:block;font-size:.875rem;font-weight:600;color:#374151;margin-bottom:.375rem}
     .hint{font-weight:400;color:#6b7280}
-    input,textarea{width:100%;border:1.5px solid #d1d5db;border-radius:.5rem;padding:.75rem 1rem;font-size:1.0625rem;font-family:inherit;outline:none;transition:border-color .15s}
-    input:focus,textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-    textarea{resize:vertical;min-height:80px}
+    input{width:100%;border:1.5px solid #d1d5db;border-radius:.5rem;padding:.75rem 1rem;font-size:1.0625rem;font-family:inherit;outline:none;transition:border-color .15s}
+    input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
     .field{margin-bottom:1.25rem}
     .req{color:#ef4444}
-    button{width:100%;background:#2563eb;color:#fff;font-weight:700;font-size:1.125rem;padding:1rem;border:none;border-radius:.5rem;cursor:pointer;margin-top:.5rem;transition:background .15s}
-    button:hover{background:#1d4ed8}
-    button:active{background:#1e40af}
+    .member-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem}
+    .member-row input{flex:1}
+    .member-row button{width:auto;padding:.5rem .75rem;font-size:1rem;background:#ef4444;margin-top:0}
+    .member-row button:hover{background:#dc2626}
+    .add-btn{width:auto;padding:.5rem 1rem;font-size:.875rem;background:#10b981;margin-top:0;display:inline-flex;align-items:center;gap:.25rem}
+    .add-btn:hover{background:#059669}
+    .submit-btn{width:100%;background:#2563eb;color:#fff;font-weight:700;font-size:1.125rem;padding:1rem;border:none;border-radius:.5rem;cursor:pointer;margin-top:.5rem;transition:background .15s}
+    .submit-btn:hover{background:#1d4ed8}
+    .submit-btn:active{background:#1e40af}
+    .error-banner{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:.5rem;padding:.875rem 1rem;margin-bottom:1.25rem;color:#dc2626;font-size:.9375rem;font-weight:500}
+    .member-label{display:flex;justify-content:space-between;align-items:center}
+    .member-count{font-size:.75rem;color:#6b7280;font-weight:400}
   </style>
 </head>
 <body>
   <div class="card">
     <h1>Register Your Team</h1>
     <p class="subtitle">Enter your team details to begin the hunt.</p>
-    <form action="/api/register" method="POST">
+    ${errorMessage ? `<div class="error-banner">⚠️ ${errorMessage}</div>` : ''}
+    <form action="/api/register" method="POST" id="regForm">
       <input type="hidden" name="token" value="${token}"/>
       <div class="field">
         <label for="teamName">Team Name <span class="req">*</span></label>
         <input id="teamName" name="teamName" type="text" required placeholder="e.g. The Explorers"/>
       </div>
       <div class="field">
-        <label for="members">Team Members <span class="req">*</span> <span class="hint">(4–8, comma-separated)</span></label>
-        <textarea id="members" name="members" required placeholder="e.g. Alice, Bob, Carol, Dave"></textarea>
+        <div class="member-label">
+          <label>Team Members <span class="req">*</span> <span class="hint">(4–8)</span></label>
+          <span class="member-count" id="memberCount">0 members</span>
+        </div>
+        <div id="memberList">
+          <div class="member-row">
+            <input type="text" name="member[]" required placeholder="Member name"/>
+            <button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">−</button>
+          </div>
+        </div>
+        <button type="button" class="add-btn" onclick="addMember()">+ Add Member</button>
       </div>
-      <button type="submit">Start the Hunt →</button>
+      <button type="submit" class="submit-btn">Start the Hunt →</button>
     </form>
   </div>
+  <script>
+    function addMember() {
+      const list = document.getElementById('memberList');
+      const row = document.createElement('div');
+      row.className = 'member-row';
+      row.innerHTML = '<input type="text" name="member[]" required placeholder="Member name"/><button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">−</button>';
+      list.appendChild(row);
+      updateCount();
+      row.querySelector('input').focus();
+    }
+    function removeMember(btn) {
+      const rows = document.querySelectorAll('.member-row');
+      if (rows.length > 1) {
+        btn.parentElement.remove();
+        updateCount();
+      }
+    }
+    function updateCount() {
+      const count = document.querySelectorAll('.member-row').length;
+      document.getElementById('memberCount').textContent = count + ' member' + (count !== 1 ? 's' : '');
+    }
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+      const count = document.querySelectorAll('.member-row').length;
+      if (count < 4) {
+        e.preventDefault();
+        alert('Please add at least 4 team members.');
+        return false;
+      }
+      if (count > 8) {
+        e.preventDefault();
+        alert('Maximum 8 team members allowed.');
+        return false;
+      }
+    });
+    updateCount();
+  </script>
 </body>
 </html>`;
 }
@@ -125,7 +179,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL(`/clue/${existingTeam.id}`, request.url), 307);
   }
 
-  return new NextResponse(formHtml(tokenValue), {
+  return new NextResponse(formHtml(tokenValue, ''), {
     headers: { 'Content-Type': 'text/html; charset=utf-8' },
   });
 }

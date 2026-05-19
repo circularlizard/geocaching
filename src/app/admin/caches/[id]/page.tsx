@@ -5,14 +5,15 @@ import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import QRCode from 'qrcode';
 import EditClueForm from './EditClueForm';
+import EditCacheNameForm from './EditCacheNameForm';
 import UploadImageForm from './UploadImageForm';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const id = parseInt(params.id, 10);
-  if (isNaN(id)) return { title: 'Cache Details' };
+  if (isNaN(id)) return { title: 'Geocache Details' };
   const [cache] = await db.select({ name: caches.name }).from(caches).where(eq(caches.id, id)).limit(1);
-  return { title: cache ? cache.name : 'Cache Details' };
+  return { title: cache ? cache.name : 'Geocache Details' };
 }
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
@@ -40,7 +41,7 @@ export default async function AdminCacheDetailPage({ params }: { params: { id: s
 
         {/* Breadcrumb */}
         <nav className="text-sm text-gray-500" aria-label="Breadcrumb">
-          <a href="/admin/caches" className="hover:text-gray-700 hover:underline">Caches</a>
+          <a href="/admin/caches" className="hover:text-gray-700 hover:underline">Geocaches</a>
           <span className="mx-2">/</span>
           <span className="text-gray-900 font-medium">{cache.name}</span>
         </nav>
@@ -57,6 +58,11 @@ export default async function AdminCacheDetailPage({ params }: { params: { id: s
           )}
         </div>
 
+        {/* Name edit */}
+        <section className="bg-white rounded-xl shadow p-6 space-y-4">
+          <EditCacheNameForm cacheId={cache.id} initialName={cache.name} />
+        </section>
+
         {/* QR code + identity */}
         <section className="bg-white rounded-xl shadow p-6 flex flex-col sm:flex-row gap-6 items-center">
           <div
@@ -65,7 +71,7 @@ export default async function AdminCacheDetailPage({ params }: { params: { id: s
           />
           <div className="space-y-3 text-sm w-full">
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Cache Token</p>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Geocache Token</p>
               <p className="font-mono text-gray-800 break-all">{cache.cacheToken}</p>
             </div>
             <div>
@@ -76,7 +82,7 @@ export default async function AdminCacheDetailPage({ params }: { params: { id: s
               href="/admin/cache-qr-sheet"
               className="inline-block mt-2 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs font-medium"
             >
-              Print all cache QR codes →
+              Print all geocache QR codes →
             </a>
           </div>
         </section>

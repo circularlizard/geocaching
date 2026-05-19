@@ -41,7 +41,7 @@ export default async function CompletionPage({
         <h1 className="text-3xl font-bold text-yellow-600">Congratulations!</h1>
         <h2 className="text-2xl font-semibold text-gray-900">{team.displayName}</h2>
         <p className="text-xl text-gray-700">
-          You have completed all caches!
+          You have completed all geocaches!
         </p>
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
           <p className="text-sm text-gray-500 uppercase tracking-wide mb-1">Final Score</p>
