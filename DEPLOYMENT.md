@@ -101,14 +101,34 @@ The local Next.js app will now connect to Vercel Postgres and Vercel Blob instea
 > # then edit with your local values
 > ```
 
+### How `vercel env pull` works
+
+The CLI shows `+` for vars it added to `.env.local` and `-` for vars that exist locally but **not** in Vercel — it does **not** delete your local values. After a pull, Vercel-sourced vars appear at the top of the file; your hand-written vars remain below.
+
+`BLOB_READ_WRITE_TOKEN` is pulled automatically once Blob is connected. The `POSTGRES_URL*` vars are only pulled once you connect the Postgres database to the project in the Vercel dashboard.
+
 ### When to use Vercel services locally
 
 | Task | Use |
 |---|---|
-| Testing Blob image uploads end-to-end | Vercel env (`vercel env pull`) |
-| Running Cucumber tests | Local Docker (default `.env.local`) |
-| Normal day-to-day development | Local Docker (default `.env.local`) |
-| Verifying migrations before deploy | Vercel env (`vercel env pull`) |
+| Testing Blob image uploads end-to-end | After `vercel env pull` — `BLOB_READ_WRITE_TOKEN` is present, uploads go to Vercel Blob automatically |
+| Running Cucumber tests | Local Docker `DATABASE_URL` — keeps test data isolated from production |
+| Normal day-to-day development | Local Docker `DATABASE_URL` + Vercel Blob (both can coexist) |
+| Verifying migrations before deploy | Set `DATABASE_URL` to `POSTGRES_URL_NON_POOLING` value, run `npx drizzle-kit push` |
+
+### Switching between local DB and Vercel Postgres
+
+Comment/uncomment `DATABASE_URL` in `.env.local`:
+
+```bash
+# Local Docker (for tests and dev)
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/geocache
+
+# Vercel Postgres (for migration testing) — value from Vercel dashboard
+# DATABASE_URL=postgres://...neon.tech/...
+```
+
+When `DATABASE_URL` is absent, the app automatically uses `POSTGRES_URL_NON_POOLING` or `POSTGRES_URL` if those were pulled by the CLI.
 
 ---
 
