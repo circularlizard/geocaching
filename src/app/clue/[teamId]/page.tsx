@@ -117,8 +117,8 @@ export default async function CluePage({
       <div className="max-w-md w-full space-y-6">
         <div className="border-b pb-4 flex justify-between items-start">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{team.displayName}</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Looking for: <span className="font-medium text-gray-700">{cache.name}</span></p>
+            <h1 className="text-2xl font-bold text-gray-900">{cache.name}</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Team: <span className="font-medium text-gray-700">{team.displayName}</span></p>
           </div>
           <span className="text-lg font-semibold text-blue-700 shrink-0 ml-4">
             Score: <span id="score">{score}</span>
