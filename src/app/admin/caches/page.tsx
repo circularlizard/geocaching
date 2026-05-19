@@ -36,9 +36,17 @@ export default async function AdminCachesPage() {
       <div className="max-w-3xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900">Manage Caches</h1>
-          <a href="/admin/setup" className="text-blue-600 hover:underline text-sm">
-            ← Game Setup
-          </a>
+          <div className="flex gap-3 items-center">
+            <a
+              href="/admin/cache-qr-sheet"
+              className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+            >
+              Cache QR Codes
+            </a>
+            <a href="/admin/setup" className="text-blue-600 hover:underline text-sm">
+              ← Game Setup
+            </a>
+          </div>
         </div>
 
         <section className="bg-white rounded-xl shadow p-6 space-y-4">

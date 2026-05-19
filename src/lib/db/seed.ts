@@ -113,6 +113,13 @@ async function seed() {
     const createdCaches = await db.insert(caches).values(cacheData).returning();
     console.log(`✅ Created ${createdCaches.length} caches`);
 
+    // Assign all caches to the game (required so registration uses gameCaches)
+    console.log('🔗 Assigning caches to game...');
+    await db.insert(gameCaches).values(
+      createdCaches.map((c) => ({ gameId: game.id, cacheId: c.id })),
+    );
+    console.log(`✅ Assigned ${createdCaches.length} caches to game`);
+
     // Create 3 registration tokens
     console.log('🎟️ Creating registration tokens...');
     const tokenData = [
@@ -175,6 +182,7 @@ async function seed() {
     console.log(`- Registration Tokens: ${createdTokens.length}`);
     console.log(`- Teams: ${createdTeams.length}`);
     console.log(`- Team Sequences: ${createdTeams.length * createdCaches.length}`);
+    console.log(`- Game Cache Assignments: ${createdCaches.length}`);
 
   } catch (error) {
     console.error('❌ Error during seeding:', error);
