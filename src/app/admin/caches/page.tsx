@@ -1,7 +1,7 @@
 import { requireAdminAuth } from '@/lib/admin-auth';
 import { db } from '@/lib/db';
 import { caches, games, gameCaches } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, asc } from 'drizzle-orm';
 import CreateCacheForm from './CreateCacheForm';
 import AssignCachesForm from './AssignCachesForm';
 
@@ -14,7 +14,7 @@ export default async function AdminCachesPage() {
     .where(eq(games.isActive, true))
     .limit(1);
 
-  const allCaches = await db.select().from(caches);
+  const allCaches = await db.select().from(caches).orderBy(asc(caches.name));
 
   const assignedIds = activeGame
     ? (await db.select().from(gameCaches).where(eq(gameCaches.gameId, activeGame.id))).map(
