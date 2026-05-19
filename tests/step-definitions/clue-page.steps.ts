@@ -520,7 +520,9 @@ Then(
   async function (this: TestWorld) {
     if (!this.teamId) throw new Error('No teamId set');
     const body = await this.getBody();
-    const cache = await getCurrentCacheForTeam(this.teamId, 0);
+    const [team] = await db.select().from(teams).where(eq(teams.id, this.teamId)).limit(1);
+    if (!team) throw new Error('Team not found');
+    const cache = await getCurrentCacheForTeam(this.teamId, team.currentCacheIndex);
     if (!cache) throw new Error('Could not resolve current cache for team');
     if (!body.includes(cache.name)) {
       throw new Error(`Expected cache name "${cache.name}" on clue page. Got: ${body.substring(0, 500)}`);

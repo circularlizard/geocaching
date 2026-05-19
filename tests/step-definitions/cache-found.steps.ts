@@ -480,8 +480,8 @@ Then(
     if (!this.teamId) throw new Error('No teamId set');
     const team = await getTeamById(this.teamId);
     if (!team) throw new Error('Team not found');
-    // Use team.currentCacheIndex + 1 to convert to 1-based number for getProgressLogForTeamCache
-    const log = await getProgressLogForTeamCache(this.teamId, team.currentCacheIndex + 1);
+    // team.currentCacheIndex is already the 0-based position of the last completed geocache
+    const log = await getProgressLogForTeamCache(this.teamId, team.currentCacheIndex);
     if (!log) throw new Error('No progress log found for last geocache');
     if (log.points !== expectedPoints) {
       throw new Error(`Expected ${expectedPoints} points but found ${log.points}`);

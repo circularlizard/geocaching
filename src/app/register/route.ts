@@ -3,6 +3,15 @@ import { db } from '@/lib/db';
 import { registrationTokens, teams, games } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function formHtml(token: string, errorMessage = '') {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -40,7 +49,7 @@ function formHtml(token: string, errorMessage = '') {
   <div class="card">
     <h1>Register Your Team</h1>
     <p class="subtitle">Enter your team details to begin the hunt.</p>
-    ${errorMessage ? `<div class="error-banner">⚠️ ${errorMessage}</div>` : ''}
+    ${errorMessage ? `<div class="error-banner">⚠️ ${escapeHtml(errorMessage)}</div>` : ''}
     <form action="/api/register" method="POST" id="regForm">
       <input type="hidden" name="token" value="${token}"/>
       <div class="field">

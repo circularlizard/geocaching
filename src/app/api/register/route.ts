@@ -3,7 +3,21 @@ import { db } from '@/lib/db';
 import { games, registrationTokens, teams, caches, teamSequences, gameCaches } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function formErrorHtml(token: string, error: string, teamName = '', members = '') {
+  const memberList = members.split(',').map(m => m.trim()).filter(Boolean);
+  const memberRows = memberList.length > 0
+    ? memberList.map(m => `<div class="member-row"><input type="text" name="member[]" required placeholder="Member name" value="${escapeHtml(m)}"/><button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">−</button></div>`).join('')
+    : '<div class="member-row"><input type="text" name="member[]" required placeholder="Member name"/><button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">−</button></div>';
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,34 +33,83 @@ function formErrorHtml(token: string, error: string, teamName = '', members = ''
     .error-banner{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:.5rem;padding:.875rem 1rem;margin-bottom:1.25rem;color:#dc2626;font-size:.9375rem;font-weight:500}
     label{display:block;font-size:.875rem;font-weight:600;color:#374151;margin-bottom:.375rem}
     .hint{font-weight:400;color:#6b7280}
-    input,textarea{width:100%;border:1.5px solid #d1d5db;border-radius:.5rem;padding:.75rem 1rem;font-size:1.0625rem;font-family:inherit;outline:none;transition:border-color .15s}
-    input:focus,textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
-    textarea{resize:vertical;min-height:80px}
+    input{width:100%;border:1.5px solid #d1d5db;border-radius:.5rem;padding:.75rem 1rem;font-size:1.0625rem;font-family:inherit;outline:none;transition:border-color .15s}
+    input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.15)}
     .field{margin-bottom:1.25rem}
     .req{color:#ef4444}
-    button{width:100%;background:#2563eb;color:#fff;font-weight:700;font-size:1.125rem;padding:1rem;border:none;border-radius:.5rem;cursor:pointer;margin-top:.5rem;transition:background .15s}
-    button:hover{background:#1d4ed8}
-    button:active{background:#1e40af}
+    .member-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem}
+    .member-row input{flex:1}
+    .member-row button{width:auto;padding:.5rem .75rem;font-size:1rem;background:#ef4444;margin-top:0}
+    .member-row button:hover{background:#dc2626}
+    .add-btn{width:auto;padding:.5rem 1rem;font-size:.875rem;background:#10b981;margin-top:0;display:inline-flex;align-items:center;gap:.25rem}
+    .add-btn:hover{background:#059669}
+    .submit-btn{width:100%;background:#2563eb;color:#fff;font-weight:700;font-size:1.125rem;padding:1rem;border:none;border-radius:.5rem;cursor:pointer;margin-top:.5rem;transition:background .15s}
+    .submit-btn:hover{background:#1d4ed8}
+    .submit-btn:active{background:#1e40af}
+    .member-label{display:flex;justify-content:space-between;align-items:center}
+    .member-count{font-size:.75rem;color:#6b7280;font-weight:400}
   </style>
 </head>
 <body>
   <div class="card">
     <h1>Register Your Team</h1>
     <p class="subtitle">Enter your team details to begin the hunt.</p>
-    <div class="error-banner">⚠️ ${error}</div>
-    <form action="/api/register" method="POST">
-      <input type="hidden" name="token" value="${token}"/>
+    <div class="error-banner">⚠️ ${escapeHtml(error)}</div>
+    <form action="/api/register" method="POST" id="regForm">
+      <input type="hidden" name="token" value="${escapeHtml(token)}"/>
       <div class="field">
         <label for="teamName">Team Name <span class="req">*</span></label>
-        <input id="teamName" name="teamName" type="text" required placeholder="e.g. The Explorers" value="${teamName.replace(/"/g, '&quot;')}"/>
+        <input id="teamName" name="teamName" type="text" required placeholder="e.g. The Explorers" value="${escapeHtml(teamName)}"/>
       </div>
       <div class="field">
-        <label for="members">Team Members <span class="req">*</span> <span class="hint">(4–8, comma-separated)</span></label>
-        <textarea id="members" name="members" required placeholder="e.g. Alice, Bob, Carol, Dave">${members.replace(/</g, '&lt;')}</textarea>
+        <div class="member-label">
+          <label>Team Members <span class="req">*</span> <span class="hint">(4–8)</span></label>
+          <span class="member-count" id="memberCount">${memberList.length || 1} member${(memberList.length || 1) !== 1 ? 's' : ''}</span>
+        </div>
+        <div id="memberList">
+          ${memberRows}
+        </div>
+        <button type="button" class="add-btn" onclick="addMember()">+ Add Member</button>
       </div>
-      <button type="submit">Start the Hunt →</button>
+      <button type="submit" class="submit-btn">Start the Hunt →</button>
     </form>
   </div>
+  <script>
+    function addMember() {
+      const list = document.getElementById('memberList');
+      const row = document.createElement('div');
+      row.className = 'member-row';
+      row.innerHTML = '<input type="text" name="member[]" required placeholder="Member name"/><button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">−</button>';
+      list.appendChild(row);
+      updateCount();
+      row.querySelector('input').focus();
+    }
+    function removeMember(btn) {
+      const rows = document.querySelectorAll('.member-row');
+      if (rows.length > 1) {
+        btn.parentElement.remove();
+        updateCount();
+      }
+    }
+    function updateCount() {
+      const count = document.querySelectorAll('.member-row').length;
+      document.getElementById('memberCount').textContent = count + ' member' + (count !== 1 ? 's' : '');
+    }
+    document.getElementById('regForm').addEventListener('submit', function(e) {
+      const count = document.querySelectorAll('.member-row').length;
+      if (count < 4) {
+        e.preventDefault();
+        alert('Please add at least 4 team members.');
+        return false;
+      }
+      if (count > 8) {
+        e.preventDefault();
+        alert('Maximum 8 team members allowed.');
+        return false;
+      }
+    });
+    updateCount();
+  </script>
 </body>
 </html>`;
 }
