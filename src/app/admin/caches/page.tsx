@@ -6,6 +6,8 @@ import CreateCacheForm from './CreateCacheForm';
 import AssignCachesForm from './AssignCachesForm';
 import DeleteCacheButton from './DeleteCacheButton';
 
+export const metadata = { title: 'Manage Caches' };
+
 export default async function AdminCachesPage() {
   requireAdminAuth();
 

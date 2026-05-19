@@ -2,6 +2,14 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { teams, progressLogs } from '@/lib/db/schema';
 import { eq, sum } from 'drizzle-orm';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: { teamId: string } }): Promise<Metadata> {
+  const teamId = parseInt(params.teamId, 10);
+  if (isNaN(teamId)) return { title: 'Hunt Complete!' };
+  const [team] = await db.select({ displayName: teams.displayName }).from(teams).where(eq(teams.id, teamId)).limit(1);
+  return { title: team ? `Hunt Complete! — ${team.displayName}` : 'Hunt Complete!' };
+}
 
 export default async function CompletionPage({
   params,

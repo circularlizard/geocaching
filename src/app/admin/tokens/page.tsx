@@ -6,6 +6,8 @@ import QRCode from 'qrcode';
 import PrintButton from '@/components/PrintButton';
 import { AddTokenButton, DeleteTokenButton } from './TokenActions';
 
+export const metadata = { title: 'Registration Tokens' };
+
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
 export default async function AdminTokensPage() {

@@ -3,6 +3,8 @@ import { caches, games, teams, teamSequences, progressLogs } from '@/lib/db/sche
 import { eq, and } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 
+export const metadata = { title: 'Cache Found!' };
+
 async function findCurrentTeamForCache(cacheId: number, gameId: number) {
   const seqs = await db
     .select()
@@ -141,6 +143,14 @@ export default async function FoundPage({
       .where(eq(progressLogs.id, existingLog.id));
   }
 
+  const potentialPoints = !existingLog
+    ? 5
+    : existingLog.clue3RequestedTimestamp
+      ? 1
+      : existingLog.clue2RequestedTimestamp
+        ? 3
+        : 5;
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-white">
       <div className="max-w-md w-full space-y-6 text-center">
@@ -149,6 +159,13 @@ export default async function FoundPage({
         <p className="text-lg text-gray-700">
           Well done, <span className="font-semibold">{team.displayName}</span>! You found the cache.
         </p>
+        <div className="bg-green-50 border border-green-200 rounded-lg py-3 px-4">
+          <p className="text-green-800 font-semibold text-lg">
+            🏆 You will earn{' '}
+            <span className="text-2xl">{potentialPoints}</span>{' '}
+            point{potentialPoints !== 1 ? 's' : ''} for this cache!
+          </p>
+        </div>
         <p className="text-gray-600">
           Please replace the cache box exactly as you found it, then confirm below.
         </p>
