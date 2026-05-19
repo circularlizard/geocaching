@@ -87,7 +87,7 @@ export default async function AdminCachesPage() {
                     )}
                     <a
                       href={`/admin/caches/${c.id}`}
-                      className="text-xs text-blue-600 hover:underline"
+                      className="text-xs text-blue-600 hover:underline self-center"
                     >
                       View details
                     </a>

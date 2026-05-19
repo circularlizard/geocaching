@@ -20,10 +20,10 @@ Feature: Team Registration
     When a user visits "/register?token=REG-TOKEN-01"
     Then they see a registration form requesting a team name and team members
 
-  Scenario: Registration rejected with fewer than 4 members
+  Scenario: Registration rejected with fewer than 3 members
     Given a user visits "/register?token=REG-TOKEN-01"
-    When they submit the registration form with team name "Solo Squad" and members "Alice, Bob, Carol"
-    Then they see a validation error indicating a minimum of 4 team members is required
+    When they submit the registration form with team name "Solo Squad" and members "Alice, Bob"
+    Then they see a validation error indicating a minimum of 3 team members is required
     And no team is created in the database
 
   Scenario: Registration rejected with more than 8 members

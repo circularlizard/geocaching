@@ -43,9 +43,9 @@ export default function RequestClueButton({ teamId, currentPoints, afterPoints, 
   return (
     <button
       onClick={() => setConfirming(true)}
-      className="w-full bg-blue-600 text-white font-bold py-4 rounded-lg text-lg hover:bg-blue-700 transition-colors"
+      className="w-full bg-gray-100 text-gray-700 font-semibold py-3 rounded-lg text-base hover:bg-gray-200 transition-colors border border-gray-300"
     >
-      Request Clue {nextClueNum}
+      Need another clue? Request Clue {nextClueNum}
     </button>
   );
 }

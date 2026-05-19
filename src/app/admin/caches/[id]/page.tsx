@@ -4,9 +4,7 @@ import { caches, games, gameCaches } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import QRCode from 'qrcode';
-import EditClueForm from './EditClueForm';
-import EditCacheNameForm from './EditCacheNameForm';
-import UploadImageForm from './UploadImageForm';
+import EditCacheForm from './EditCacheForm';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
@@ -58,11 +56,6 @@ export default async function AdminCacheDetailPage({ params }: { params: { id: s
           )}
         </div>
 
-        {/* Name edit */}
-        <section className="bg-white rounded-xl shadow p-6 space-y-4">
-          <EditCacheNameForm cacheId={cache.id} initialName={cache.name} />
-        </section>
-
         {/* QR code + identity */}
         <section className="bg-white rounded-xl shadow p-6 flex flex-col sm:flex-row gap-6 items-center">
           <div
@@ -87,23 +80,17 @@ export default async function AdminCacheDetailPage({ params }: { params: { id: s
           </div>
         </section>
 
-        {/* Clues */}
-        <section className="bg-white rounded-xl shadow p-6 space-y-6">
-          <h2 className="text-lg font-semibold text-gray-800">Clues</h2>
-          <EditClueForm cacheId={cache.id} clue="clue1" initialText={cache.clue1Text} />
-          <hr />
-          <EditClueForm cacheId={cache.id} clue="clue2" initialText={cache.clue2Text} />
-          <hr />
-          <EditClueForm cacheId={cache.id} clue="clue3" initialText={cache.clue3Text} />
-        </section>
-
-        {/* Clue 3 image */}
-        <section className="bg-white rounded-xl shadow p-6 space-y-4">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800">Clue 3 Image</h2>
-            <p className="text-xs text-gray-500 mt-0.5">Shown to teams only after they request the third clue.</p>
-          </div>
-          <UploadImageForm cacheId={cache.id} currentImageUrl={cache.clue3ImageUrl ?? null} />
+        {/* Edit Geocache Form */}
+        <section className="bg-white rounded-xl shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">Edit Geocache</h2>
+          <EditCacheForm
+            cacheId={cache.id}
+            initialName={cache.name}
+            initialClue1={cache.clue1Text}
+            initialClue2={cache.clue2Text}
+            initialClue3={cache.clue3Text}
+            currentImageUrl={cache.clue3ImageUrl ?? null}
+          />
         </section>
 
       </div>

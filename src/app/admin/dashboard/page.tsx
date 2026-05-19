@@ -90,7 +90,7 @@ export default async function AdminDashboardPage() {
       <AutoRefresh intervalMs={10000} />
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Scoreboard</h1>
           {activeGame && (
             <span className="text-sm text-gray-500">
               Game: <strong>{activeGame.name}</strong>

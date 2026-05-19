@@ -33,10 +33,11 @@ function formHtml(token: string, errorMessage = '') {
     .req{color:#ef4444}
     .member-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem}
     .member-row input{flex:1}
-    .member-row button{width:auto;padding:.5rem .75rem;font-size:1rem;background:#ef4444;margin-top:0}
-    .member-row button:hover{background:#dc2626}
-    .add-btn{width:auto;padding:.5rem 1rem;font-size:.875rem;background:#10b981;margin-top:0;display:inline-flex;align-items:center;gap:.25rem}
-    .add-btn:hover{background:#059669}
+    .member-row button{width:36px;height:36px;padding:0;font-size:1.25rem;background:#f3f4f6;border:1.5px solid #d1d5db;border-radius:.5rem;color:#374151;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:0}
+    .member-row button:hover{background:#e5e7eb;border-color:#9ca3af}
+    .add-btn{width:auto;padding:.625rem 1rem;font-size:.875rem;font-weight:600;background:#fff;border:1.5px solid #d1d5db;border-radius:.5rem;color:#374151;margin-top:0;display:inline-flex;align-items:center;gap:.375rem;transition:all .15s}
+    .add-btn:hover{background:#f9fafb;border-color:#9ca3af}
+    .add-btn:disabled{opacity:.5;cursor:not-allowed}
     .submit-btn{width:100%;background:#2563eb;color:#fff;font-weight:700;font-size:1.125rem;padding:1rem;border:none;border-radius:.5rem;cursor:pointer;margin-top:.5rem;transition:background .15s}
     .submit-btn:hover{background:#1d4ed8}
     .submit-btn:active{background:#1e40af}
@@ -58,55 +59,84 @@ function formHtml(token: string, errorMessage = '') {
       </div>
       <div class="field">
         <div class="member-label">
-          <label>Team Members <span class="req">*</span> <span class="hint">(4–8)</span></label>
-          <span class="member-count" id="memberCount">0 members</span>
+          <label>Team Members <span class="req">*</span> <span class="hint">(3–8)</span></label>
+          <span class="member-count" id="memberCount">1 member</span>
         </div>
         <div id="memberList">
           <div class="member-row">
             <input type="text" name="member[]" required placeholder="Member name"/>
-            <button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">−</button>
           </div>
         </div>
-        <button type="button" class="add-btn" onclick="addMember()">+ Add Member</button>
+        <button type="button" class="add-btn" id="addBtn" onclick="addMember()">+ Add Member</button>
       </div>
       <button type="submit" class="submit-btn">Start the Hunt →</button>
     </form>
   </div>
   <script>
+    const MAX_MEMBERS = 8;
+    const MIN_MEMBERS = 3;
+
     function addMember() {
       const list = document.getElementById('memberList');
+      const currentCount = list.querySelectorAll('.member-row').length;
+      if (currentCount >= MAX_MEMBERS) {
+        alert('Maximum ' + MAX_MEMBERS + ' team members allowed.');
+        return;
+      }
       const row = document.createElement('div');
       row.className = 'member-row';
       row.innerHTML = '<input type="text" name="member[]" required placeholder="Member name"/><button type="button" class="remove-btn" onclick="removeMember(this)" title="Remove">−</button>';
       list.appendChild(row);
-      updateCount();
+      updateUI();
       row.querySelector('input').focus();
     }
     function removeMember(btn) {
       const rows = document.querySelectorAll('.member-row');
       if (rows.length > 1) {
         btn.parentElement.remove();
-        updateCount();
+        updateUI();
       }
     }
-    function updateCount() {
-      const count = document.querySelectorAll('.member-row').length;
+    function updateUI() {
+      const rows = document.querySelectorAll('.member-row');
+      const count = rows.length;
+      const addBtn = document.getElementById('addBtn');
+
       document.getElementById('memberCount').textContent = count + ' member' + (count !== 1 ? 's' : '');
+
+      addBtn.disabled = count >= MAX_MEMBERS;
+
+      rows.forEach((row, index) => {
+        let removeBtn = row.querySelector('.remove-btn');
+        if (count === 1) {
+          if (removeBtn) removeBtn.remove();
+        } else {
+          if (!removeBtn) {
+            removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-btn';
+            removeBtn.title = 'Remove';
+            removeBtn.innerHTML = '−';
+            removeBtn.onclick = function() { removeMember(this); };
+            row.appendChild(removeBtn);
+          }
+        }
+      });
     }
     document.getElementById('regForm').addEventListener('submit', function(e) {
       const count = document.querySelectorAll('.member-row').length;
-      if (count < 4) {
+      if (count < MIN_MEMBERS) {
         e.preventDefault();
-        alert('Please add at least 4 team members.');
+        alert('Please add at least ' + MIN_MEMBERS + ' team members.');
         return false;
       }
-      if (count > 8) {
+      if (count > MAX_MEMBERS) {
         e.preventDefault();
-        alert('Maximum 8 team members allowed.');
+        alert('Maximum ' + MAX_MEMBERS + ' team members allowed.');
         return false;
       }
     });
-    updateCount();
+    updateUI();
   </script>
 </body>
 </html>`;

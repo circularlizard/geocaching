@@ -128,14 +128,12 @@ export default async function CluePage({
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-blue-700 uppercase tracking-wide">Clue 1</h2>
           <p className="text-xl text-gray-800 leading-relaxed">{cache.clue1Text}</p>
-          <FoundItButton />
         </section>
 
         {clue2Visible && (
           <section className="space-y-3">
             <h2 className="text-lg font-semibold text-orange-600 uppercase tracking-wide">Clue 2</h2>
             <p className="text-xl text-gray-800 leading-relaxed">{cache.clue2Text}</p>
-            <FoundItButton />
           </section>
         )}
 
@@ -150,7 +148,6 @@ export default async function CluePage({
                 className="w-full rounded-lg border"
               />
             )}
-            <FoundItButton />
           </section>
         )}
 
@@ -169,7 +166,11 @@ export default async function CluePage({
           📷 When you find the geocache, <strong>scan the QR code</strong> inside the box to record your find.
         </div>
 
-        <div className="space-y-3 pt-2">
+        <div className="pt-2">
+          <FoundItButton />
+        </div>
+
+        <div className="space-y-3 pt-4 border-t border-gray-200">
           {!clue3Visible && (
             <RequestClueButton
               teamId={team.id}

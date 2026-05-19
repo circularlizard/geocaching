@@ -338,7 +338,7 @@ Then(
     if (!body.includes('aria-label="Admin navigation"')) {
       throw new Error('Admin navigation bar not found in page HTML');
     }
-    const sections = ['Dashboard', 'Game Setup', 'Caches', 'Team QRs'];
+    const sections = ['Scoreboard', 'Game Setup', 'Geocaches', 'Team QRs'];
     for (const section of sections) {
       if (!body.includes(section)) {
         throw new Error(`Navigation link "${section}" not found in admin nav`);
