@@ -29,7 +29,7 @@ export default function AdminNav() {
           href="/admin/dashboard"
           className="font-bold text-sm shrink-0 text-white hover:text-gray-300 mr-4 flex items-center h-full"
         >
-          Admin
+          Bore Stane Geocache
         </a>
 
         {/* Desktop links */}

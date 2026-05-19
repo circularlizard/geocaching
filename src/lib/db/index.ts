@@ -10,6 +10,12 @@ const connectionString =
   process.env.POSTGRES_URL_NON_POOLING ??
   process.env.POSTGRES_URL!;
 
-// Disable prefetch as it is not supported for "Transaction" pool mode
-export const client = postgres(connectionString, { prepare: false });
+const globalForDb = globalThis as unknown as { _pgClient?: postgres.Sql };
+
+// Reuse the client in dev to avoid exhausting connections on hot reloads
+if (!globalForDb._pgClient) {
+  globalForDb._pgClient = postgres(connectionString, { prepare: false, max: 5 });
+}
+
+export const client = globalForDb._pgClient;
 export const db = drizzle(client, { schema });

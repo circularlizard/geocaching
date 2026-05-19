@@ -39,10 +39,10 @@ function formErrorHtml(token: string, error: string, teamName = '', members = ''
     .req{color:#ef4444}
     .member-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem}
     .member-row input{flex:1}
-    .member-row button{width:auto;padding:.5rem .75rem;font-size:1rem;background:#ef4444;margin-top:0}
-    .member-row button:hover{background:#dc2626}
-    .add-btn{width:auto;padding:.5rem 1rem;font-size:.875rem;background:#10b981;margin-top:0;display:inline-flex;align-items:center;gap:.25rem}
-    .add-btn:hover{background:#059669}
+    .member-row button{width:36px;height:36px;padding:0;font-size:1.25rem;background:#f3f4f6;border:1.5px solid #d1d5db;border-radius:.5rem;color:#374151;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:0}
+    .member-row button:hover{background:#e5e7eb;border-color:#9ca3af}
+    .add-btn{width:auto;padding:.625rem 1rem;font-size:.875rem;font-weight:600;background:#fff;border:1.5px solid #d1d5db;border-radius:.5rem;color:#374151;margin-top:0;display:inline-flex;align-items:center;gap:.375rem;transition:all .15s}
+    .add-btn:hover{background:#f9fafb;border-color:#9ca3af}
     .submit-btn{width:100%;background:#2563eb;color:#fff;font-weight:700;font-size:1.125rem;padding:1rem;border:none;border-radius:.5rem;cursor:pointer;margin-top:.5rem;transition:background .15s}
     .submit-btn:hover{background:#1d4ed8}
     .submit-btn:active{background:#1e40af}
@@ -63,7 +63,7 @@ function formErrorHtml(token: string, error: string, teamName = '', members = ''
       </div>
       <div class="field">
         <div class="member-label">
-          <label>Team Members <span class="req">*</span> <span class="hint">(4–8)</span></label>
+          <label>Team Members <span class="req">*</span> <span class="hint">(3–8)</span></label>
           <span class="member-count" id="memberCount">${memberList.length || 1} member${(memberList.length || 1) !== 1 ? 's' : ''}</span>
         </div>
         <div id="memberList">
@@ -97,9 +97,9 @@ function formErrorHtml(token: string, error: string, teamName = '', members = ''
     }
     document.getElementById('regForm').addEventListener('submit', function(e) {
       const count = document.querySelectorAll('.member-row').length;
-      if (count < 4) {
+      if (count < 3) {
         e.preventDefault();
-        alert('Please add at least 4 team members.');
+        alert('Please add at least 3 team members.');
         return false;
       }
       if (count > 8) {
@@ -165,9 +165,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Team name is required' }, { status: 422 });
   }
 
-  if (memberList.length < 4) {
-    if (isFormPost) return htmlError(safeToken, safeTeamName, safeMembers, `Please enter at least 4 team members — you entered ${memberList.length}.`);
-    return NextResponse.json({ error: 'A minimum of 4 team members is required' }, { status: 422 });
+  if (memberList.length < 3) {
+    if (isFormPost) return htmlError(safeToken, safeTeamName, safeMembers, `Please enter at least 3 team members — you entered ${memberList.length}.`);
+    return NextResponse.json({ error: 'A minimum of 3 team members is required' }, { status: 422 });
   }
 
   if (memberList.length > 8) {
