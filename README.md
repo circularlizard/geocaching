@@ -79,7 +79,7 @@ npm run db:migrate
 ### 5. (Optional) Seed test data
 
 ```bash
-npm run db:seed
+  npm run db:seed
 ```
 
 ### 6. Start the dev server

@@ -42,6 +42,11 @@ Feature: Cache Found Flow
     When a user visits "/found/CACHE-TOKEN-A2" for team "The Finders"
     Then they see an error message indicating this is not their next cache
 
+  Scenario: Scanning the wrong cache with a team cookie set shows a helpful return link
+    Given team "The Finders" has a team session cookie set
+    When they scan cache token "CACHE-TOKEN-A2" which is not their current cache
+    Then they see a link to return to their clue page
+
   Scenario: Scanning an unknown cache token shows an error
     When a user visits "/found/CACHE-TOKEN-UNKNOWN" for team "The Finders"
     Then they see an error page indicating the code is not recognised

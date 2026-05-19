@@ -1,6 +1,6 @@
 import { requireAdminAuth } from '@/lib/admin-auth';
 import { db } from '@/lib/db';
-import { teams, games, progressLogs, registrationTokens, teamSequences } from '@/lib/db/schema';
+import { teams, games, progressLogs, registrationTokens, teamSequences, caches } from '@/lib/db/schema';
 import { eq, sum, asc } from 'drizzle-orm';
 import AutoRefresh from '@/components/AutoRefresh';
 
@@ -35,8 +35,9 @@ export default async function AdminDashboardPage() {
         .where(eq(progressLogs.teamId, team.id));
 
       const sequence = await db
-        .select({ sequenceOrder: teamSequences.sequenceOrder, cacheId: teamSequences.cacheId })
+        .select({ sequenceOrder: teamSequences.sequenceOrder, cacheId: teamSequences.cacheId, cacheName: caches.name })
         .from(teamSequences)
+        .innerJoin(caches, eq(teamSequences.cacheId, caches.id))
         .where(eq(teamSequences.teamId, team.id))
         .orderBy(asc(teamSequences.sequenceOrder));
 
@@ -46,6 +47,7 @@ export default async function AdminDashboardPage() {
         const log = logsByCacheId.get(seq.cacheId);
         return {
           cacheNumber: idx + 1,
+          cacheName: seq.cacheName,
           foundTimestamp: log?.foundTimestamp ?? null,
           skipped: log?.skipped ?? false,
         };
@@ -139,8 +141,9 @@ export default async function AdminDashboardPage() {
                             ? 'bg-green-100 text-green-700'
                             : 'bg-gray-100 text-gray-400'
                       }`}
+                      title={cr.cacheName}
                     >
-                      #{cr.cacheNumber}:{' '}
+                      #{cr.cacheNumber} {cr.cacheName}:{' '}
                       {cr.skipped
                         ? 'Skipped'
                         : cr.foundTimestamp

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import { teams, caches, teamSequences, progressLogs, games } from '@/lib/db/schema';
 import { eq, and, sum } from 'drizzle-orm';
+import SetTeamCookie from '@/components/SetTeamCookie';
 
 export default async function CluePage({
   params,
@@ -96,10 +97,14 @@ export default async function CluePage({
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-6 bg-white">
+      <SetTeamCookie teamId={team.id} />
       <div className="max-w-md w-full space-y-6">
         <div className="border-b pb-4 flex justify-between items-start">
-          <h1 className="text-2xl font-bold text-gray-900">{team.displayName}</h1>
-          <span className="text-lg font-semibold text-blue-700">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{team.displayName}</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Looking for: <span className="font-medium text-gray-700">{cache.name}</span></p>
+          </div>
+          <span className="text-lg font-semibold text-blue-700 shrink-0 ml-4">
             Score: <span id="score">{score}</span>
           </span>
         </div>
@@ -129,6 +134,10 @@ export default async function CluePage({
             )}
           </section>
         )}
+
+        <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800 text-center">
+          📷 When you find the cache, <strong>scan the QR code</strong> inside the box to record your find.
+        </div>
 
         <div className="space-y-3 pt-2">
           {showRequestButton && (
