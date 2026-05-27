@@ -181,7 +181,7 @@ export default async function AdminDashboardPage() {
             href="/admin/recall-confirm"
             className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700"
           >
-            Recall All Teams
+            End Game
           </a>
         </div>
       </div>

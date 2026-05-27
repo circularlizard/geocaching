@@ -215,7 +215,14 @@ export async function GET(request: NextRequest) {
     .limit(1);
 
   if (existingTeam) {
-    return NextResponse.redirect(new URL(`/clue/${existingTeam.id}`, request.url), 307);
+    const response = NextResponse.redirect(new URL(`/clue/${existingTeam.id}`, request.url), 307);
+    response.cookies.set('geocache_team', String(existingTeam.id), {
+      path: '/',
+      sameSite: 'lax',
+      maxAge: 86400,
+      httpOnly: false,
+    });
+    return response;
   }
 
   return new NextResponse(formHtml(tokenValue, ''), {

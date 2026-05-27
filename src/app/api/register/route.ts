@@ -207,10 +207,17 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (existingTeam) {
-    return NextResponse.redirect(
+    const existingResponse = NextResponse.redirect(
       new URL(`/clue/${existingTeam.id}`, request.url),
       { status: 302 },
     );
+    existingResponse.cookies.set('geocache_team', String(existingTeam.id), {
+      path: '/',
+      sameSite: 'lax',
+      maxAge: 86400,
+      httpOnly: false,
+    });
+    return existingResponse;
   }
 
   const [team] = await db
@@ -241,7 +248,14 @@ export async function POST(request: Request) {
     })),
   );
 
-  return NextResponse.redirect(new URL(`/clue/${team.id}`, request.url), {
+  const newTeamResponse = NextResponse.redirect(new URL(`/clue/${team.id}`, request.url), {
     status: 302,
   });
+  newTeamResponse.cookies.set('geocache_team', String(team.id), {
+    path: '/',
+    sameSite: 'lax',
+    maxAge: 86400,
+    httpOnly: false,
+  });
+  return newTeamResponse;
 }
