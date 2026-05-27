@@ -111,18 +111,36 @@ export default async function CluePage({
   const nextClueNum: 2 | 3 = clue2Visible ? 3 : 2;
   const afterRequestPoints = nextClueNum === 2 ? 3 : 1;
 
+  const endTimeFormatted = activeGame.gameEndTime.toLocaleTimeString('en-GB', {
+    timeZone: 'Europe/London',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-6 bg-white">
       <SetTeamCookie teamId={team.id} />
-      <div className="max-w-md w-full space-y-6">
+      <div className="max-w-md w-full space-y-5">
+        <div className="bg-amber-500 text-white text-center rounded-lg px-4 py-2 font-semibold text-sm tracking-wide">
+          ⏰ Game ends at {endTimeFormatted}
+        </div>
+
         <div className="border-b pb-4 flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{cache.name}</h1>
             <p className="text-sm text-gray-500 mt-0.5">Team: <span className="font-medium text-gray-700">{team.displayName}</span></p>
           </div>
-          <span className="text-lg font-semibold text-blue-700 shrink-0 ml-4">
-            Score: <span id="score">{score}</span>
-          </span>
+          <div className="flex flex-col items-end gap-1 shrink-0 ml-4">
+            <span className="text-lg font-semibold text-blue-700">
+              Score: <span id="score">{score}</span>
+            </span>
+            <a
+              href={`/clue/${team.id}/progress`}
+              className="text-xs text-blue-600 underline hover:text-blue-800 whitespace-nowrap"
+            >
+              View progress →
+            </a>
+          </div>
         </div>
 
         <section className="space-y-3">
@@ -158,19 +176,14 @@ export default async function CluePage({
           </div>
         )}
 
-        <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-900 text-center">
-          Find this geocache now to earn <strong>{potentialPoints} point{potentialPoints !== 1 ? 's' : ''}</strong>.
-        </div>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm text-blue-800 text-center">
-          📷 When you find the geocache, <strong>scan the QR code</strong> inside the box to record your find.
-        </div>
-
-        <div className="pt-2">
+        <div className="space-y-3 pt-2">
+          <p className="text-sm text-center text-gray-500">
+            Worth <strong className="text-gray-700">{potentialPoints} pt{potentialPoints !== 1 ? 's' : ''}</strong> if found now
+          </p>
           <FoundItButton />
         </div>
 
-        <div className="space-y-3 pt-4 border-t border-gray-200">
+        <div className="space-y-3 pt-2 border-t border-gray-200">
           {!clue3Visible && (
             <RequestClueButton
               teamId={team.id}

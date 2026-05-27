@@ -57,7 +57,7 @@ export default async function AdminCacheQrSheetPage() {
           </p>
         )}
 
-        <div className="grid grid-cols-2 gap-6 print:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 print:gap-4 print:grid-cols-2">
           {cacheLinks.map(({ name, token, url, svg, inGame }) => (
             <div
               key={token}

@@ -39,7 +39,7 @@ export default async function AdminQrSheetPage() {
           </p>
         )}
 
-        <div className="grid grid-cols-2 gap-6 print:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 print:gap-4 print:grid-cols-2">
           {tokenLinks.map(({ token, url, svg }) => (
             <div
               key={token}

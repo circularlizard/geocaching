@@ -90,7 +90,14 @@ export async function GET(request: NextRequest) {
       .limit(1);
 
     if (team) {
-      return NextResponse.redirect(new URL(`/clue/${team.id}`, request.url), 307);
+      const response = NextResponse.redirect(new URL(`/clue/${team.id}`, request.url), 307);
+      response.cookies.set('geocache_team', String(team.id), {
+        path: '/',
+        sameSite: 'lax',
+        maxAge: 86400,
+        httpOnly: false,
+      });
+      return response;
     } else {
       return NextResponse.redirect(new URL(`/register?token=${tokenId}`, request.url), 307);
     }
