@@ -63,7 +63,7 @@ export default async function AdminTokensPage() {
           <p className="text-gray-400">No registration tokens found.</p>
         )}
 
-        <div className="grid grid-cols-2 gap-6 print:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 print:gap-4 print:grid-cols-2">
           {tokenData.map(({ token, used, url, svg }) => (
             <div
               key={token.id}
