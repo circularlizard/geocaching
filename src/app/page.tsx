@@ -2,7 +2,11 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-white">
       <div className="max-w-md w-full text-center space-y-6">
-        <div className="text-6xl">🗺️</div>
+        <img
+          src="/borestane-round.svg"
+          alt="Bore Stane Explorers"
+          className="w-48 h-48 mx-auto"
+        />
         <h1 className="text-3xl font-bold text-gray-900">Bore Stane Geocaching</h1>
         <p className="text-gray-600 text-lg leading-relaxed">
           Scan a QR code to begin or resume your team's hunt.
