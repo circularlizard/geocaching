@@ -85,7 +85,9 @@ jspm_packages/
 
 # Gatsby files
 .cache/
-public
+
+# User uploads (served via object storage, not committed)
+public/uploads/
 
 # Vite build output
 dist/
