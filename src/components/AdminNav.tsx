@@ -21,14 +21,19 @@ export default function AdminNav() {
 
   return (
     <nav
-      className="fixed top-0 inset-x-0 z-50 h-14 bg-gray-900 text-white print:hidden"
+      className="fixed top-0 inset-x-0 z-50 h-14 bg-[#363e78] text-white print:hidden"
       aria-label="Admin navigation"
     >
       <div className="flex items-center h-14 px-4 max-w-6xl mx-auto gap-2">
         <a
           href="/admin/dashboard"
-          className="font-bold text-sm shrink-0 text-white hover:text-gray-300 mr-4 flex items-center h-full"
+          className="font-bold text-sm shrink-0 text-white hover:text-gray-300 mr-4 flex items-center gap-2 h-full"
         >
+          <img
+            src="/borestane-shield.svg"
+            alt=""
+            className="h-8 w-auto"
+          />
           Bore Stane Geocache
         </a>
 
@@ -62,7 +67,7 @@ export default function AdminNav() {
 
       {/* Mobile dropdown */}
       {open && (
-        <div className="md:hidden bg-gray-800 border-t border-gray-700 px-4 py-3 space-y-1">
+        <div className="md:hidden bg-[#2d3468] border-t border-[#4a5290] px-4 py-3 space-y-1">
           {NAV_ITEMS.map(({ href, label }) => (
             <a
               key={href}
